@@ -3,7 +3,6 @@
 int main(struct multiboot *mboot_ptr)
 {
     init_monitor();
-    monitor_write("hiw");
-    monitor_put(0x08);
+    monitor_put_hex(0x132);
     return 0;
 }

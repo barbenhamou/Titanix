@@ -29,22 +29,27 @@ typedef enum Color {
 /*
     Writes a single character out to the screen.
 */
-void monitor_put(char c);
+static void monitor_put(char c);
 
 /*
     Clears the screen.
 */
-void monitor_clear();
+static void monitor_clear();
 
 /*
     Writes a string to the screen, ASCII and null terminated.
 */
-void monitor_write(char *c);
+static void monitor_write(char *c);
 
 /*
     Initializes the monitor.
 */
 void init_monitor();
+
+/*
+    Printing a hex to vga.
+*/
+void monitor_put_hex(uint32_t n);
 
 /*
     Printing a char to the ubumtu-terminal.
