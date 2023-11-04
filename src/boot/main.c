@@ -1,8 +1,8 @@
 #include "../../include/lib/monitor.h"
 
-int main(struct multiboot *mboot_ptr)
+int main()
 {
-    uint32_t s = len(5);
+    uint32_t s = pow(5, 2);
     init_monitor();
     return 0;
 }
