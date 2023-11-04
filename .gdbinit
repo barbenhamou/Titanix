@@ -1,2 +1,2 @@
-file /home/bar/os/build/kernel.so
+file /home/barbe/Titanix/build/kernel.so
 target remote localhost:1234
