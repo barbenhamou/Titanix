@@ -27,9 +27,11 @@ typedef enum Color {
 
 
 /*
+    @param c - character to write to the screen.
+
     Writes a single character out to the screen.
 */
-static void monitor_put(char c);
+static void monitor_put(char_t c);
 
 /*
     Clears the screen.
@@ -37,9 +39,11 @@ static void monitor_put(char c);
 static void monitor_clear();
 
 /*
+    @param c - string to write in the screen.
+
     Writes a string to the screen, ASCII and null terminated.
 */
-static void monitor_write(char *c);
+static void monitor_write(char_t *c);
 
 /*
     Initializes the monitor.
@@ -47,18 +51,17 @@ static void monitor_write(char *c);
 void init_monitor();
 
 /*
+    @param n - wanted hexadecimal number.
+
     Printing a hex to vga.
 */
 void monitor_put_hex(uint32_t n);
 
 /*
+    @param n - wanted decimal.
+
     Printing a dec to vga.
 */
 void monitor_put_dec(uint32_t n);
-
-/*
-    Printing a char to the ubumtu-terminal.
-*/
-void putch(char c);
 
 #endif

@@ -1,10 +1,5 @@
 #include "../../include/lib/monitor.h"
 
-void putch(char c) {
-    outb(0x3f8, c);
-}
-
-// // Stores the cursor position.
 static uint8_t cursor_x;
 static uint8_t cursor_y;
 static uint16_t* terminal_buffer = (uint16_t*)0xb8000; 
@@ -28,7 +23,6 @@ static word_t blank() {
     return create_cell(' ', white , black);
 }
 
-// // Updates the hardware cursor.
 static void move_cursor() {
     uint16_t pos = cursor_y * 80 + cursor_x;
     outb(0x3D4, 14);
@@ -55,7 +49,7 @@ static void scroll() {
     }
 }
 
-static void monitor_put(char c) {
+static void monitor_put(char_t c) {
     uint8_t backColour = 0;
     uint8_t foreColour = 15;
 
@@ -114,7 +108,7 @@ static void monitor_clear() {
     move_cursor();
 }
 
-static void monitor_write(char *c) {
+static void monitor_write(char_t *c) {
     int i = 0;
     while (c[i]) {
         monitor_put(c[i++]);
