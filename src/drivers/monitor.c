@@ -1,5 +1,4 @@
 #include "../../include/lib/monitor.h"
-#include "../../include/lib/math.h"
 
 void putch(char c) {
     outb(0x3f8, c);
@@ -122,42 +121,42 @@ static void monitor_write(char *c) {
     }
 }
 
-void monitor_put_hex(uint32_t n) {  
-    if (n == 0) {
-        monitor_write("0x0");
-        return;
-    }
+// void monitor_put_hex(uint32_t n) {  
+//     if (n == 0) {
+//         monitor_write("0x0");
+//         return;
+//     }
 
-    uint32_t num = n, m = 0, i = 0;
-    char_t hex[8] = {'-', '-', '-', '-', '-', '-', '-', '-'};
+//     uint32_t num = n, m = 0, i = 0;
+//     char_t hex[8] = {'-', '-', '-', '-', '-', '-', '-', '-'};
 
 
-    while (num > 0) {
-        m = (num%16);
-        if (m == 10) {
-            hex[i] = 'a';
-        } else if (m == 11) {
-            hex[i] = 'b';
-        } else if (m == 12) {
-            hex[i] = 'c';
-        } else if (m == 13) {
-            hex[i] = 'd';
-        } else if (m == 14) {
-            hex[i] = 'e';
-        } else if (m == 15) {
-            hex[i] = 'f';
-        } else {
-            hex[i] = '0' + m;
-        }
-        num /= 16;
-    }
+//     while (num > 0) {
+//         m = (num%16);
+//         if (m == 10) {
+//             hex[i] = 'a';
+//         } else if (m == 11) {
+//             hex[i] = 'b';
+//         } else if (m == 12) {
+//             hex[i] = 'c';
+//         } else if (m == 13) {
+//             hex[i] = 'd';
+//         } else if (m == 14) {
+//             hex[i] = 'e';
+//         } else if (m == 15) {
+//             hex[i] = 'f';
+//         } else {
+//             hex[i] = '0' + m;
+//         }
+//         num /= 16;
+//     }
 
-    for (int j = 7; j >= 0; --j) {
-        if (hex[j] != '-') {
+//     for (int j = 7; j >= 0; --j) {
+//         if (hex[j] != '-') {
             
-        }
-    }
-} 
+//         }
+//     }
+// } 
 
 void init_monitor() {
     cursor_x = 0, cursor_y = 0;

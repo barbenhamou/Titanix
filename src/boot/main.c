@@ -2,7 +2,7 @@
 
 int main(struct multiboot *mboot_ptr)
 {
+    uint32_t s = len(5);
     init_monitor();
-    monitor_put_hex(0x132);
     return 0;
 }
