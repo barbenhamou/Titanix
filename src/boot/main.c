@@ -2,7 +2,7 @@
 
 int main()
 {
-    uint32_t s = pow(5, 2);
     init_monitor();
+    monitor_put_dec(2131);
     return 0;
 }

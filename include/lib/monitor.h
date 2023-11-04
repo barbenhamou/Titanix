@@ -52,6 +52,11 @@ void init_monitor();
 void monitor_put_hex(uint32_t n);
 
 /*
+    Printing a dec to vga.
+*/
+void monitor_put_dec(uint32_t n);
+
+/*
     Printing a char to the ubumtu-terminal.
 */
 void putch(char c);
