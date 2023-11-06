@@ -67,16 +67,16 @@ section .text
     mov cr0, eax
   
     ; long mode.
-    lgdt [gdt64.pointer]
+    lgdt [gdt.pointer]
 
     ; update selectors
-    mov ax, gdt64.data
+    mov ax, gdt.data64
     mov ss, ax
     mov ds, ax
     mov es, ax
     
     ;jumping to long mode.
-    jmp gdt64.code:long_mode_start
+    jmp gdt.code64:long_mode_start
 
     bits 64
     long_mode_start:
@@ -85,12 +85,13 @@ section .text
                                     ; executing whatever rubbish is in the memory
                                     ; after our kernel!
 section .rodata
-    gdt64:
-        dq 0
-    .code: equ $ - gdt64
-        dq (1<<44) | (1<<47) | (1<<41) | (1<<43) | (1<<53)
-    .data: equ $ - gdt64
-        dq (1<<44) | (1<<47) | (1<<41)
-    .pointer:
-        dw $ - gdt64 - 1
-        dq gdt64
+%include "src/boot/gdt.s"
+    ; gdt64:
+    ;     dq 0
+    ; .code: equ $ - gdt64
+    ;     dq (1<<44) | (1<<47) | (1<<41) | (1<<43) | (1<<53)
+    ; .data: equ $ - gdt64
+    ;     dq (1<<44) | (1<<47) | (1<<41)
+    ; .pointer:
+    ;     dw $ - gdt64 - 1
+    ;     dq gdt64
