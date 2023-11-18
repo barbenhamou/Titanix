@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-///////////////////////////////__PORTS__\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+///////////////////////////////__ASM_INSTR__\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 /*
     @param port - port to put data in.
@@ -37,6 +37,14 @@ uint16_t inw(uint16_t port);
 */
 void putch(char_t c);
 
+/*
+    @param str - wanted string to print.
+    @va args - additional args wanted to be printed.
+
+    Printing things.
+*/
+void puts(char_t* str,...);
+
 ///////////////////////////////__MATH__\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 /*
@@ -45,14 +53,14 @@ void putch(char_t c);
 
     Power.
 */
-uint32_t pow(uint32_t base, uint32_t power);
+uint64_t pow(uint64_t base, uint64_t power);
 
 /*
     @param n - the number to check.
 
     Number of digits
 */
-uint32_t len(uint32_t n);
+uint64_t len(uint64_t n, uint64_t base);
 
 ///////////////////////////////__MEMORY__\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 

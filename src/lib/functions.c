@@ -1,6 +1,6 @@
 #include "../../include/lib/functions.h"
 
-///////////////////////////////__PORTS__\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+///////////////////////////////__ASM_INSTR__\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 __attribute__((always_inline)) void inline outb(word_t port, byte_t data){
     __asm__ __volatile__ ("outb %1, %0" : : "dN" (port), "a" (data));
@@ -18,20 +18,14 @@ __attribute__((always_inline)) uint16_t inline inw(uint16_t port) {
     return ret;
 }
 
-///////////////////////////////__CONSOLE__\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-
-void putch(char_t c) {
-    outb(0x3f8, c);
-}
-
 ///////////////////////////////__MATH__\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-uint32_t len(uint32_t n) {
+uint64_t len(uint64_t n, uint64_t base) {
     if (n == 0) return 0;
-    return 1 + len(n/10);
+    return 1 + len(n/base, base);
 }
 
-uint32_t pow(uint32_t base, uint32_t power) {
+uint64_t pow(uint64_t base, uint64_t power) {
     if (base == 0) return 0;
     if (power == 0) return 1;
     return base * pow(base, power - 1);
@@ -74,4 +68,95 @@ word_t *memsetw(word_t *p, word_t val, uint32_t words) {
         p[i] = val;
     }
     return p;
+}
+
+///////////////////////////////__CONSOLE__\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+void putch(char_t c) {
+    outb(0x3f8, c);
+}
+
+void puts(char_t* str,...) {
+
+    va_list ptr;
+    va_start(ptr, str);
+
+    uint32_t length = strlen(str);
+
+    for (uint32_t i = 0; i < length; ++i) {
+        if (str[i] == '%') {
+            switch (str[i+1]) {
+                case 'd': {
+                    uint32_t num = va_arg(ptr, uint32_t);
+                    uint32_t digits = (uint32_t)len(num, 10);
+                    uint32_t bound = (uint32_t)pow(10, digits - 1);
+
+                    while (bound) {
+                        putch('0' + (num/bound) % 10);
+                        bound /= 10;
+                    }
+                    break; 
+                }
+                case 'c':{
+                    putch(va_arg(ptr, uint32_t));
+                    break; 
+                }
+                case 'q': {
+                    uint64_t num = va_arg(ptr, uint64_t);
+                    uint64_t digits = len(num, 10);
+                    uint64_t bound = pow(10, digits - 1);
+
+                    while (bound) {
+                        putch('0' + (num/bound) % 10);
+                        bound /= 10;
+                    }
+                    break; 
+                }
+                case 'x': {
+                    puts("0x");
+                    uint64_t num = va_arg(ptr, uint64_t);
+                    uint64_t digits = len(num, 16);
+                    uint64_t bound = pow(16, digits - 1);
+
+                    while (bound) {
+                        if ((num/bound)%16 > 9) {
+                            putch('a' + (num/bound) % 16 - 10);
+                        } else {
+                            putch('0' + (num/bound) % 16);
+                        }
+                        bound /= 16;
+                    }
+                    break; 
+                }
+                case 'b': {
+                    puts("0b");
+                    uint64_t num = va_arg(ptr, uint64_t);
+                    uint64_t digits = len(num, 2);
+                    uint64_t bound = pow(2, digits - 1);
+
+                    while (bound) {
+                        putch('0' + (num/bound) % 2);
+                        bound /= 2;
+                    }
+                    break; 
+                }
+                case 'm': {
+                    byte_t length_ = str[i+2] - '0';
+
+                    byte_t *st = va_arg(ptr, byte_t*);
+                    for (byte_t j = 0; j < length_; ++j) {
+                        putch(*st);
+                        st++;
+                    }
+
+                    ++i;
+                    break; 
+                }
+            }
+
+            ++i;
+        } else {
+            putch(str[i]);
+        }
+    }
 }

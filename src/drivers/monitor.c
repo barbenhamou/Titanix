@@ -162,8 +162,8 @@ void monitor_put_dec(uint32_t n) {
         ++i;
     }
     
-    for (int j = 0; j < 8; ++j) {
-            monitor_put(dec[7-j]);
+    for (int j = i - 1; j >= 0; --j) {
+            monitor_put(dec[j]);
     }
 }
 

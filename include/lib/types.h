@@ -15,4 +15,9 @@ typedef byte_t bool_t;
 #define TRUE 1
 #define FALSE 0
 
+#define va_list __builtin_va_list
+#define va_start(p1, p2) __builtin_va_start(p1, p2)
+#define va_end(p) __builtin_va_end(p)
+#define va_arg(p1, p2) __builtin_va_arg(p1, p2)
+
 #endif
