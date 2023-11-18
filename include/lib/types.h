@@ -10,5 +10,9 @@ typedef unsigned short uint16_t;
 typedef unsigned char byte_t;
 typedef unsigned char char_t;
 typedef unsigned char uint8_t;
+typedef byte_t bool_t;
+
+#define TRUE 1
+#define FALSE 0
 
 #endif
