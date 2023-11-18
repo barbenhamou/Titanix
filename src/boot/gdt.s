@@ -46,7 +46,7 @@ gdt:
     db (1 << 7) | (1 << 4) | (1 << 1) | (1 << 0) ;Access byte 40 - 47, premissions and stuff, 1|00|1|0|0|1|1. 
     db (0 << 4) | (0x0f) ; Limit 48 - 51, Flags 52 - 55, no flag is on, (0|0|0|0) | (1111).
     db 0 ; Base ; 56 - 63.
-.pointer
+.pointer: 
     dw .pointer - gdt - 1 ; Size of gdt - 1.
     dq gdt ; Offset.
 

@@ -31,3 +31,10 @@ uint32_t pow(uint32_t base, uint32_t power) {
     if (power == 0) return 1;
     return base * pow(base, power - 1);
 }
+
+byte_t *memcpy(byte_t *dest, const byte_t *src, uint32_t counter) {
+    for (int i = 0; i < counter; ++i) {
+        dest[i] = src[i];
+    }
+    return dest;
+}

@@ -1,7 +1,7 @@
 #GCC
 
 COMPILER = gcc
-C_FLAGS = -c -nostdlib -fno-builtin -nostdinc -fno-stack-protector -I./include
+C_FLAGS = -c -g -nostdlib -fno-builtin -nostdinc -fno-stack-protector -I./include
 
 #LINKER
 

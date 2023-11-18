@@ -47,4 +47,17 @@ uint32_t pow(uint32_t base, uint32_t power);
 */
 uint32_t len(uint32_t n);
 
+
+
+/*
+    @param dest - wanted array.
+    @param src - original array.
+    @param counter - how many to copy.
+
+    Copying memory.
+*/
+byte_t *memcpy(byte_t *dest, const byte_t *src, uint32_t counter);
+
+void init_real_mode(void);
+
 #endif

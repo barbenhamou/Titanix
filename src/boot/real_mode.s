@@ -1,3 +1,6 @@
+%ifndef REAL_MODE
+%define REAL_MODE
+
 %include "src/boot/macros.s"
 
 global real_mode_start
@@ -29,3 +32,5 @@ transfer_to_real:
 real_mode_start:
 %include "src/boot/transions.s"
 real_mode_end:
+
+%endif

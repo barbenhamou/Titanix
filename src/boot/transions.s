@@ -1,14 +1,15 @@
 %include "src/boot/macros.s"
 
 section .rodata
-include "src/boot/gdt.s"
+%include "src/boot/gdt.s"
 
 section .text
 bits 32
 ivt:
     dw 0x03ff ; Limit  0 - 15
     dq 0 ; Base 16 - 89
-
+    
+extern p4_table
 bits 32
 
 protected_to_long:
@@ -63,18 +64,18 @@ bits 32
 
     ; Disable paging.
     mov eax, cr0
-    or eax, ~(1 << 31)
+    and eax, ~(1 << 31)
     mov cr0, eax
 
     ; Disable long-mode.
     mov ecx, 0xC0000080 ; MSR bits.
     rdmsr
-    or eax, ~(1 << 8) ; MSR bits.
+    and eax, ~(1 << 8) ; MSR bits.
     wrmsr
 
     ; Disable physical addr extension (PAE).
     mov eax, cr4
-    or eax, ~(1 << 5) ; PAE bit
+    and eax, ~(1 << 5) ; PAE bit
     mov cr4, eax
 
     ; Returning the addr to stack.

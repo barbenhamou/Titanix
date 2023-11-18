@@ -1,4 +1,5 @@
 [GLOBAL start]                  ; Kernel entry point.
+global p4_table
 
 section .bss
     align 0x1000                                ; align at 4 bytes
