@@ -27,8 +27,12 @@ uint8_t inb(uint16_t port);
 */
 uint16_t inw(uint16_t port);
 
-///////////////////////////////__CONSOLE__\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+/*
+    Halting the system.
+*/
+void hlt();
 
+///////////////////////////////__CONSOLE__\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 /*
     @param c - wanted char to the bash.
@@ -44,6 +48,13 @@ void putch(char_t c);
     Printing things.
 */
 void puts(char_t* str,...);
+
+/*
+    @param str - wanted string to print.
+    @ptr - ptr to a va list.
+    Printing things.
+*/
+void puts_with_va(char_t* str, va_list ptr);
 
 ///////////////////////////////__MATH__\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
@@ -113,5 +124,31 @@ word_t *memsetw(word_t *p, word_t val, uint32_t words);
     Initializing real mode.
 */
 void init_real_mode(void);
+
+///////////////////////////////__LOG__\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+/*
+    @param str - a msg to pass.
+    @va args - arguments related.
+
+    Declaring debug time.
+*/
+void DEBUG(char_t *str,...);
+
+/*
+    @param str - a msg to pass.
+    @va args - arguments related.
+
+    Declaring info time.
+*/
+void INFO(char_t *str,...);
+
+/*
+    @param str - a msg to pass.
+    @va args - arguments related.
+
+    Declaring error time and halt the system.
+*/
+void ERROR(char_t *str,...);
 
 #endif
