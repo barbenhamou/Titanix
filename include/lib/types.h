@@ -1,5 +1,5 @@
 #ifndef TYPES_H
-#define TYPES_h
+#define TYPES_H
 
 typedef unsigned long long qw_t;
 typedef unsigned long long uint64_t;
