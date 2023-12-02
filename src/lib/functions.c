@@ -24,9 +24,10 @@ __attribute__((always_inline)) void inline hlt() {
 
 ///////////////////////////////__MATH__\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-uint64_t len(uint64_t n, uint64_t base) {
+uint64_t len(uint64_t q, uint64_t n, uint64_t base) {
+    if (q == 0) return 1;
     if (n == 0) return 0;
-    return 1 + len(n/base, base);
+    return 1 + len(q, n/base, base);
 }
 
 uint64_t pow(uint64_t base, uint64_t power) {
@@ -92,7 +93,7 @@ void puts(char_t* str,...) {
             switch (str[i+1]) {
                 case 'd': {
                     uint32_t num = va_arg(ptr, uint32_t);
-                    uint32_t digits = (uint32_t)len(num, 10);
+                    uint32_t digits = (uint32_t)len(num, num, 10);
                     uint32_t bound = (uint32_t)pow(10, digits - 1);
 
                     while (bound) {
@@ -107,7 +108,7 @@ void puts(char_t* str,...) {
                 }
                 case 'q': {
                     uint64_t num = va_arg(ptr, uint64_t);
-                    uint64_t digits = len(num, 10);
+                    uint64_t digits = len(num, num, 10);
                     uint64_t bound = pow(10, digits - 1);
 
                     while (bound) {
@@ -119,7 +120,7 @@ void puts(char_t* str,...) {
                 case 'x': {
                     puts("0x");
                     uint64_t num = va_arg(ptr, uint64_t);
-                    uint64_t digits = len(num, 16);
+                    uint64_t digits = len(num, num, 16);
                     uint64_t bound = pow(16, digits - 1);
 
                     while (bound) {
@@ -135,7 +136,7 @@ void puts(char_t* str,...) {
                 case 'b': {
                     puts("0b");
                     uint64_t num = va_arg(ptr, uint64_t);
-                    uint64_t digits = len(num, 2);
+                    uint64_t digits = len(num, num, 2);
                     uint64_t bound = pow(2, digits - 1);
 
                     while (bound) {
@@ -175,7 +176,7 @@ void puts_with_va(char_t* str, va_list ptr) {
             switch (str[i+1]) {
                 case 'd': {
                     uint32_t num = va_arg(ptr, uint32_t);
-                    uint32_t digits = (uint32_t)len(num, 10);
+                    uint32_t digits = (uint32_t)len(num, num, 10);
                     uint32_t bound = (uint32_t)pow(10, digits - 1);
 
                     while (bound) {
@@ -190,7 +191,7 @@ void puts_with_va(char_t* str, va_list ptr) {
                 }
                 case 'q': {
                     uint64_t num = va_arg(ptr, uint64_t);
-                    uint64_t digits = len(num, 10);
+                    uint64_t digits = len(num, num, 10);
                     uint64_t bound = pow(10, digits - 1);
 
                     while (bound) {
@@ -202,7 +203,7 @@ void puts_with_va(char_t* str, va_list ptr) {
                 case 'x': {
                     puts("0x");
                     uint64_t num = va_arg(ptr, uint64_t);
-                    uint64_t digits = len(num, 16);
+                    uint64_t digits = len(num, num, 16);
                     uint64_t bound = pow(16, digits - 1);
 
                     while (bound) {
@@ -218,7 +219,7 @@ void puts_with_va(char_t* str, va_list ptr) {
                 case 'b': {
                     puts("0b");
                     uint64_t num = va_arg(ptr, uint64_t);
-                    uint64_t digits = len(num, 2);
+                    uint64_t digits = len(num, num, 2);
                     uint64_t bound = pow(2, digits - 1);
 
                     while (bound) {

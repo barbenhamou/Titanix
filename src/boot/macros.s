@@ -3,7 +3,7 @@
 
 %define REAL_MODE_ADDR(addr) (addr) ;(addr - 0x7e00 + real_mode_start)
 
-%define MMAP 0x8000
+%define MMAP 0x5000
 %define E820_MAGIC_NUM 0x0534d4150
 
 %macro UpdateSelectors 1
@@ -23,7 +23,7 @@
     pop ax
 %endmacro
 
-%macro print 1+
+%macro prints 1+
     jmp %%endstr 
     %%str: db %1
     %%endstr 
@@ -31,11 +31,11 @@
     %rep %%endstr-%%str
         printc byte [%%str+i]
         %assign i i+1
-    %endrp
+    %endrep
 %endmacro
 
 %macro println 1+
-    print %1, 10, 13
+    prints %1, 10, 13
 %endmacro
 
 %endif

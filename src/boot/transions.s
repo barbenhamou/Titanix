@@ -119,7 +119,7 @@ real_to_protected:
 
     ; Enable protected.
     mov eax, cr0
-    and eax, (1 << 0)
+    or eax, (1 << 0)
     mov cr0, eax
 
     jmp gdt.code32: REAL_MODE_ADDR(real_to_protected.protected_mode)

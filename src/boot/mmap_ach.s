@@ -3,14 +3,13 @@
 global load_mmap 
 
 section .text 
-bit 16
+bits 16
 
 load_mmap:
-
-        mov di, MMAP+4
+        mov edi, MMAP+4
         xor ebx, ebx
         xor ebp, ebp
-        mov edx, E820_MAGIC_NUM
+        mov dword edx, 0x0534D4150	
         mov eax, 0xe820
         mov dword [es:di + 20], 1
         mov ecx, 24
@@ -42,8 +41,7 @@ load_mmap:
         mov ecx, [es:di + 8]
         or ecx, [es:di + 12]
         jz .skip_entry
-        inc bp
-        println "success"
+        inc ebp
         add di, 24
 
     .skip_entry:
@@ -51,15 +49,14 @@ load_mmap:
         jnz .loop
 
     .done:
-        println "finished"
-        mov dword [MMAP], bp
+        push ebx
+        xor ebx, ebx
+        mov word ebx, MMAP
+        mov dword [ebx], ebp
+        pop ebx
         clc
         ret
 
     .failed:
-        println "failed"
         stc
         ret
-
-
-

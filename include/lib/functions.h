@@ -71,7 +71,7 @@ uint64_t pow(uint64_t base, uint64_t power);
 
     Number of digits
 */
-uint64_t len(uint64_t n, uint64_t base);
+uint64_t len(uint64_t q, uint64_t n, uint64_t base);
 
 ///////////////////////////////__MEMORY__\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 

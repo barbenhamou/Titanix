@@ -1,11 +1,10 @@
 #include "../../include/lib/mmap.h"
+#include "../../include/lib/monitor.h"
 
 extern byte_t* real_mode_start(void);
 extern byte_t* real_mode_end(void);
 extern void transfer_to_real(void(*)());
 extern void load_mmap(void (*)());
-
-mmap_t *mmap;
 
 void init_real_mode(void) {
     memcpy((byte_t*)0x4000, real_mode_start, real_mode_end - real_mode_start);
@@ -13,12 +12,11 @@ void init_real_mode(void) {
 
 void init_mmap() {
     transfer_to_real(load_mmap);
-
-    mmap = (mmap_t*)MMAP;
 }
 
 byte_t *alloc (uint64_t length) {
     uint64_t len = ALIGN(length, PAGE_SIZE);
+    mmap_t *mmap = (mmap_t*)MMAP;
     uint32_t size = mmap->length;
     uint32_t i, chosen_chunk = size;
 
@@ -45,15 +43,13 @@ byte_t *alloc (uint64_t length) {
 }
 
 void put_mmap() {
+    mmap_t *mmap = (mmap_t*)MMAP;
     uint32_t i, len = mmap->length;
-    puts("Printing mmap");
+    INFO("Printing mmap\n");
     for (i = 0; i < len; ++i) {
-        puts("Entry number %d, at %x\n", i, &(mmap->mmap_entries[i]));
-        puts("Entry attributes:
-                \n\tid: %d
-                \n\tbase address: %x
-                \n\tlength: %x
-                \n\ttype: %x",
+        INFO("Entry number %d, at %x\n", i, (mmap->mmap_entries[i].base));
+        INFO("Entry attributes:\n\tid: %d\n\tbase address: %x\n\tlength: %x\n\ttype: %x\n",
                 i, mmap->mmap_entries[i].base, mmap->mmap_entries[i].length, mmap->mmap_entries[i].type);
     }
 }
+
