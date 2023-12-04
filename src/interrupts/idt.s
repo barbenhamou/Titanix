@@ -1,8 +1,6 @@
 %ifndef IDT_S
 %define IDT_S
 
-%include "../../include/lib/interrupts.h"
-
 section .text
 bits 64
 
@@ -13,15 +11,15 @@ global load_idt
 extern exception_handler
 
 %macro isr_error 1
-    isr%1:
-    call exception_handler
-    iretq
+    isr%+%1:
+        call exception_handler
+        iretq
 %endmacro
 
 %macro isr_no_error 1
-    isr%1:
-    call exception_handler
-    iretq
+    isr%+%1:
+        call exception_handler
+        iretq
 %endmacro
 
 isr_no_error 0
@@ -60,7 +58,7 @@ isr_no_error 31
 isr_stub_table:
     %assign i 0
     %rep 32
-        dq isr%i
+        dq isr%+i
         %assign i i+1
     %endrep
 

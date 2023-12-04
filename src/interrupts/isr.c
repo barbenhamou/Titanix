@@ -1,7 +1,5 @@
 #include "../../include/lib/interrupts.h"
 
-global exceptin_handler;
-
-void exceptin_handler() {
+void exception_handler() {
     __asm__ __volatile__ ("cli;hlt");
 }

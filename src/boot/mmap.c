@@ -45,11 +45,12 @@ byte_t *alloc (uint64_t length) {
 void put_mmap() {
     mmap_t *mmap = (mmap_t*)MMAP;
     uint32_t i, len = mmap->length;
-    INFO("Printing mmap\n");
+    INFO("_________________Printing mmap_________________\n");
     for (i = 0; i < len; ++i) {
         INFO("Entry number %d, at %x\n", i, (mmap->mmap_entries[i].base));
         INFO("Entry attributes:\n\tid: %d\n\tbase address: %x\n\tlength: %x\n\ttype: %x\n",
                 i, mmap->mmap_entries[i].base, mmap->mmap_entries[i].length, mmap->mmap_entries[i].type);
     }
+    INFO("_______________________________________________\n");
 }
 
