@@ -33,7 +33,7 @@ byte_t *alloc (uint64_t length) {
     uint64_t remainings = (uint64_t)allocated - mmap->mmap_entries[chosen_chunk].base;
     mmap->mmap_entries[chosen_chunk].length -= len + remainings;
     mmap->mmap_entries[chosen_chunk].base += len + remainings;
-    DEBUG("Allocted %x bytes from %x; %x left in this section (%x).\n", length, mmap->mmap_entries[chosen_chunk].length, mmap->mmap_entries[chosen_chunk].base);
+    INFO("Allocted %x bytes from %x; %x left in this section (%x).\n", length, mmap->mmap_entries[chosen_chunk].length, mmap->mmap_entries[chosen_chunk].base);
 
     if (allocated != 0) {
         memset(allocated, 0, len);

@@ -7,9 +7,13 @@ bits 64
 global load_idt
 
 load_idt:
-    mov ebx, [rsp + 8]
-    lidt [ebx]
-    sti
+    push rbp
+    mov rbp, rsp
+    pushfq
+    cli
+    lidt [rdi]
+    popfq
+    pop rbp
     ret
 
 %endif

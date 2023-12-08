@@ -1,14 +1,14 @@
 #include "../../include/lib/interrupts.h"
 
-extern void load_idt(idtr_t idtr);
-extern void *isr_stub_table[];
+extern void load_idt(idtr_t *idtr);
+extern uint64_t isr_stub_table[];
 
 idt_gate_t idt[IDT_MAX_DISCRIPTORS];
 bool_t vectors[IDT_MAX_DISCRIPTORS];
 uint64_t rountine_services[IDT_MAX_DISCRIPTORS];
 idtr_t idtr;
 
-void idt_set_discriptor(uint8_t vector, void* isr, uint8_t flags, uint8_t ist) {
+void idt_set_discriptor(uint8_t vector, uint64_t isr, uint8_t flags, uint8_t ist) {
     idt_gate_t *descriptor = &idt[vector];
 
     descriptor->isr_low = (uint64_t)isr & 0xffff;
@@ -28,8 +28,8 @@ void idt_init() {
         idt_set_discriptor(vector, isr_stub_table[vector], 0x8e, 0);
         vectors[vector] = TRUE;
     }
-
-    load_idt(idtr);
+    load_idt(&idtr);
+    puts("1\n");
 }
 
 uint8_t idt_allocate_vector() {
@@ -50,7 +50,7 @@ void idt_free_vector(uint8_t vector) {
 }
 
 void print_idt() {
-    INFO("_________________IDT_________________\n");
+    INFO("_________________IDT_________________\n\t");
     for (uint32_t i = 0; i < IDT_MAX_DISCRIPTORS; ++i) {
         if (vectors[i]) {
             idt_gate_t* gate = &idt[i];

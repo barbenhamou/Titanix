@@ -4,6 +4,14 @@
 #include "types.h"
 #include "functions.h"
 
+#define PAGE_FAULT 0x0e
+#define DOUBLE_FAULT 0x08
+#define DIVISION_EXCEPTION 0x00
+#define GP_FAULT 0x0d
+
+#define IDT_MAX_DISCRIPTORS 256
+#define IDT_MAX_CPU_EXCEPTIONS 32
+
 typedef struct idt_gate_t {
     uint16_t isr_low;
     uint16_t segment_selector;
@@ -57,12 +65,19 @@ typedef struct isr_frame_t {
     
 } __attribute__((packed)) isr_frame_t;
 
-#define IDT_MAX_DISCRIPTORS 256
-#define IDT_MAX_CPU_EXCEPTIONS 32
+extern void exception_handler(isr_frame_t* frame);
 
-extern void exception_handler();
+void analyze_page_fault(isr_frame_t* frame);
 
-void idt_set_discriptor(uint8_t vector, void* isr, uint8_t flags, uint8_t ist);
+void analyze_double_fault(isr_frame_t* frame);
+
+void analyze_general_protection(isr_frame_t* frame);
+
+void analyze_division_by_zero(isr_frame_t* frame);
+
+void analyze_software_interrupt(isr_frame_t* frame);
+
+void idt_set_discriptor(uint8_t vector, uint64_t isr, uint8_t flags, uint8_t ist);
 
 void idt_init();
 

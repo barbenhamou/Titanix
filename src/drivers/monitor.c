@@ -49,7 +49,7 @@ static void scroll() {
     }
 }
 
-static void monitor_put(char_t c) {
+void monitor_put(char_t c) {
     uint8_t backColour = 0;
     uint8_t foreColour = 15;
 
@@ -108,7 +108,7 @@ static void monitor_clear() {
     move_cursor();
 }
 
-static void monitor_write(char_t *c) {
+void monitor_write(char_t *c) {
     int i = 0;
     while (c[i]) {
         monitor_put(c[i++]);

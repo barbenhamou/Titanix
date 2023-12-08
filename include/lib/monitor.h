@@ -31,7 +31,7 @@ typedef enum Color {
 
     Writes a single character out to the screen.
 */
-static void monitor_put(char_t c);
+void monitor_put(char_t c);
 
 /*
     Clears the screen.
@@ -43,7 +43,7 @@ static void monitor_clear();
 
     Writes a string to the screen, ASCII and null terminated.
 */
-static void monitor_write(char_t *c);
+void monitor_write(char_t *c);
 
 /*
     Initializes the monitor.
