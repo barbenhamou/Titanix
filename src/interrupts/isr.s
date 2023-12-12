@@ -6,6 +6,7 @@ bits 64
 
 global isr_stub_table
 extern exception_handler
+extern irq_handler
 
 %macro isr_error 1
     isr%+%1:
@@ -22,6 +23,13 @@ extern exception_handler
         jmp $+(isr_frame_assemble - $)
         ;call exception_handler
         ;iretq
+%endmacro
+
+%macro irq 2
+    irq%+%1:
+        push word 0
+        push %2
+        jmp irq_stub
 %endmacro
 
 %macro pushall 0
@@ -103,6 +111,36 @@ isr_frame_assemble:
     popallcr
     popall
     pop rbp
+    add rsp, 0x10
+    sti
+    iretq
+
+
+irq_stub:
+    push rbp
+    mov rbp, rsp
+    pushall
+    pushallcr
+
+    mov ax, ds
+    push rax
+    push qword 0
+
+    mov ax, 0x10
+    mov ds, ax
+
+    lea rdi, [rsp + 0x10]
+    call irq_handler
+
+    pop rax
+    pop rax
+    mov ds, ax
+    mov es, ax
+    popallcr
+    popall
+    pop rbp
+    add rsp, 0x10
+    sti
     iretq
 
 isr_no_error 0
@@ -137,6 +175,22 @@ isr_no_error 28
 isr_no_error 29
 isr_error 30
 isr_no_error 31
+irq 0, 32
+irq 1, 33
+irq 2, 34
+irq 3, 35
+irq 4, 36
+irq 5, 37
+irq 6, 38
+irq 7, 39
+irq 8, 40
+irq 9, 41
+irq 10, 42
+irq 11, 43
+irq 12, 44
+irq 13, 45
+irq 14, 46
+irq 15, 47
 
 isr_stub_table:
     %assign i 0
@@ -144,5 +198,9 @@ isr_stub_table:
         dq isr%+i
         %assign i i+1
     %endrep
-
+    %assign i 0
+    %rep 16
+        dq irq%+i
+        %assign i i+1
+    %endrep
 %endif

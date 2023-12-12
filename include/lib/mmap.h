@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef MMAP_H
 #define MMAP_H
 

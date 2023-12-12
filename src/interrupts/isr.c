@@ -81,3 +81,16 @@ void analyze_software_interrupt(isr_frame_t* frame) {
     monitor_put('\n');
     __asm__ __volatile__ ("cli;hlt");
 }
+
+void irq_handler(isr_frame_t* irq) {
+    if (routine_services[irq->basic_frame.vector] != 0) {
+        void *handler = (void*)routine_services[irq->basic_frame.vector];
+        void (*handler_func)(isr_frame_t* frame) = (void (*)(isr_frame_t* frame))handler;
+        handler_func(irq);
+    }
+
+    if (irq->basic_frame.vector >= 40) {
+        outb(PIC_SLAVE_COMMAND_PORT,PIC_EOI);
+    }
+    outb(PIC_MASTER_COMMAND_PORT, PIC_EOI);
+}

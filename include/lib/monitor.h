@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef MONITOR_H
 #define MONITOR_H
 #define VGA_BOARD_PORT 0X3D4

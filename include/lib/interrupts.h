@@ -1,8 +1,11 @@
+#pragma once
+
 #ifndef INTERRUPTS_H
 #define INTERRUPTS_H
 
 #include "types.h"
 #include "functions.h"
+#include "monitor.h"
 
 #define PAGE_FAULT 0x0e
 #define DOUBLE_FAULT 0x08
@@ -11,6 +14,24 @@
 
 #define IDT_MAX_DISCRIPTORS 256
 #define IDT_MAX_CPU_EXCEPTIONS 32
+
+#define PIC_MASTER_COMMAND_PORT 0x20
+#define PIC_MASTER_DATA_PORT 0x21
+#define PIC_SLAVE_COMMAND_PORT 0xa0
+#define PIC_SLAVE_DATA_PORT 0xa1
+
+#define PIC_EOI 0x20
+
+#define PIC_ICW1_ICW4	    0x01
+#define PIC_ICW1_SINGLE	    0x02
+#define PIC_ICW1_INTERVAL4  0x04
+#define PIC_ICW1_LEVEL	    0x08
+#define PIC_ICW1_INIT	    0x10
+
+#define PIC_ICW4_8086	    0x01
+#define PIC_ICW4_AUTO	    0x02
+#define PIC_ICW4_BUF_SLAVE  0x08
+#define PIC_ICW4_BUF_MASTER 0x0C
 
 typedef struct idt_gate_t {
     uint16_t isr_low;
@@ -65,7 +86,11 @@ typedef struct isr_frame_t {
     
 } __attribute__((packed)) isr_frame_t;
 
+extern uint64_t routine_services[IDT_MAX_DISCRIPTORS];
+
 extern void exception_handler(isr_frame_t* frame);
+
+extern void irq_handler(isr_frame_t* irq);
 
 void analyze_page_fault(isr_frame_t* frame);
 
@@ -80,6 +105,8 @@ void analyze_software_interrupt(isr_frame_t* frame);
 void idt_set_discriptor(uint8_t vector, uint64_t isr, uint8_t flags, uint8_t ist);
 
 void idt_init();
+
+void idt_install_irq(uint8_t vector, void *handler);
 
 uint8_t idt_allocate_vector();
 

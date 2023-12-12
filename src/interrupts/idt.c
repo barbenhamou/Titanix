@@ -5,7 +5,7 @@ extern uint64_t isr_stub_table[];
 
 idt_gate_t idt[IDT_MAX_DISCRIPTORS];
 bool_t vectors[IDT_MAX_DISCRIPTORS];
-uint64_t rountine_services[IDT_MAX_DISCRIPTORS];
+uint64_t routine_services[IDT_MAX_DISCRIPTORS];
 idtr_t idtr;
 
 void idt_set_discriptor(uint8_t vector, uint64_t isr, uint8_t flags, uint8_t ist) {
@@ -26,10 +26,28 @@ void idt_init() {
 
     for (uint8_t vector = 0; vector < 32; ++vector) {
         idt_set_discriptor(vector, isr_stub_table[vector], 0x8e, 0);
+        routine_services[vector] = isr_stub_table[vector];
         vectors[vector] = TRUE;
     }
+
+    outb(PIC_MASTER_COMMAND_PORT, PIC_ICW1_INIT | PIC_ICW1_ICW4);
+    outb(PIC_SLAVE_COMMAND_PORT, PIC_ICW1_INIT | PIC_ICW1_ICW4);
+
+    outb(PIC_MASTER_DATA_PORT, PIC_EOI);
+    outb(PIC_SLAVE_DATA_PORT, PIC_EOI + 0x08);
+
+    outb(PIC_MASTER_DATA_PORT, PIC_ICW1_INTERVAL4);
+    outb(PIC_SLAVE_DATA_PORT, PIC_ICW1_SINGLE);
+
+    outb(PIC_MASTER_DATA_PORT, PIC_ICW4_8086);
+    outb(PIC_SLAVE_DATA_PORT, PIC_ICW4_8086);
     load_idt(&idtr);
-    puts("1\n");
+}
+
+void idt_install_irq(uint8_t vector, void *handler) {
+    routine_services[vector] = (uint64_t)handler;
+    idt_set_discriptor(vector, isr_stub_table[vector], 0x8e, 0);
+    vectors[vector] = TRUE;
 }
 
 uint8_t idt_allocate_vector() {
@@ -45,7 +63,7 @@ uint8_t idt_allocate_vector() {
 
 void idt_free_vector(uint8_t vector) {
     idt_set_discriptor(vector, 0, 0, 0);
-    rountine_services[vector] = 0;
+    routine_services[vector] = 0;
     vectors[vector] = 0;
 }
 
@@ -60,7 +78,7 @@ void print_idt() {
             uint16_t segment = gate->segment_selector;
 
             INFO("id: %d\n", i);
-            INFO("\t isr: %x\n", i < 32? isr : rountine_services[i]);
+            INFO("\t isr: %x\n", i < 32? isr : routine_services[i]);
             INFO("\t flags %x\n", flags);
             INFO("\t ist: %d\n", ist);
             INFO("\t segment selector: %x", segment);
