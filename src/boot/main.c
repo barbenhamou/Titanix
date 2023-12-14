@@ -11,6 +11,6 @@ int main()
     init_monitor();
     init_mmap();
     idt_init();
-    init_timer(5000);
+    init_timer(8);
     return 0;
 }

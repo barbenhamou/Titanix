@@ -12,8 +12,6 @@ extern irq_handler
     isr%+%1:
         push %1
         jmp $+(isr_frame_assemble - $)
-        ;call exception_handler
-        ;iretq
 %endmacro
 
 %macro isr_no_error 1
@@ -21,15 +19,21 @@ extern irq_handler
         push word 0
         push %1
         jmp $+(isr_frame_assemble - $)
-        ;call exception_handler
-        ;iretq
 %endmacro
 
-%macro irq 2
+extern routine_services
+
+%macro irq 1
     irq%+%1:
-        push word 0
-        push %2
-        jmp irq_stub
+        push rbp
+        pushall
+        lea r15, [rel routine_services]
+        mov r15, [r15 + %1*8]
+        call r15
+        popall
+        pop rbp
+        iretq
+
 %endmacro
 
 %macro pushall 0
@@ -112,35 +116,6 @@ isr_frame_assemble:
     popall
     pop rbp
     add rsp, 0x10
-    sti
-    iretq
-
-
-irq_stub:
-    push rbp
-    mov rbp, rsp
-    pushall
-    pushallcr
-
-    mov ax, ds
-    push rax
-    push qword 0
-
-    mov ax, 0x10
-    mov ds, ax
-
-    lea rdi, [rsp + 0x10]
-    call irq_handler
-
-    pop rax
-    pop rax
-    mov ds, ax
-    mov es, ax
-    popallcr
-    popall
-    pop rbp
-    add rsp, 0x10
-    sti
     iretq
 
 isr_no_error 0
@@ -175,22 +150,22 @@ isr_no_error 28
 isr_no_error 29
 isr_error 30
 isr_no_error 31
-irq 0, 32
-irq 1, 33
-irq 2, 34
-irq 3, 35
-irq 4, 36
-irq 5, 37
-irq 6, 38
-irq 7, 39
-irq 8, 40
-irq 9, 41
-irq 10, 42
-irq 11, 43
-irq 12, 44
-irq 13, 45
-irq 14, 46
-irq 15, 47
+irq 32
+irq 33
+irq 34
+irq 35
+irq 36
+irq 37
+irq 38
+irq 39
+irq 40
+irq 41
+irq 42
+irq 43
+irq 44
+irq 45
+irq 46
+irq 47
 
 isr_stub_table:
     %assign i 0
@@ -198,8 +173,8 @@ isr_stub_table:
         dq isr%+i
         %assign i i+1
     %endrep
-    %assign i 0
-    %rep 16
+    %assign i 32
+    %rep 15
         dq irq%+i
         %assign i i+1
     %endrep

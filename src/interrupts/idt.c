@@ -26,7 +26,6 @@ void idt_init() {
 
     for (uint8_t vector = 0; vector < 32; ++vector) {
         idt_set_discriptor(vector, isr_stub_table[vector], 0x8e, 0);
-        routine_services[vector] = isr_stub_table[vector];
         vectors[vector] = TRUE;
     }
 
@@ -42,12 +41,12 @@ void idt_init() {
     outb(PIC_MASTER_DATA_PORT, PIC_ICW4_8086);
     outb(PIC_SLAVE_DATA_PORT, PIC_ICW4_8086);
     load_idt(&idtr);
+    __asm__ __volatile__("sti");
 }
 
 void idt_install_irq(uint8_t vector, void *handler) {
     routine_services[vector] = (uint64_t)handler;
     idt_set_discriptor(vector, isr_stub_table[vector], 0x8e, 0);
-    vectors[vector] = TRUE;
 }
 
 uint8_t idt_allocate_vector() {
