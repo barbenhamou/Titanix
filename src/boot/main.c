@@ -11,6 +11,12 @@ int main()
     init_monitor();
     init_mmap();
     idt_init();
-    init_timer(8);
+    init_timer(500);
+    pit_deadline(1193182/1000);
+    pit_disable();
+    DEBUG("after\n");
+    init_timer(500);
+    pit_deadline(1193182/1000);
+    pit_disable();
     return 0;
 }

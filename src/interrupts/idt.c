@@ -29,17 +29,8 @@ void idt_init() {
         vectors[vector] = TRUE;
     }
 
-    outb(PIC_MASTER_COMMAND_PORT, PIC_ICW1_INIT | PIC_ICW1_ICW4);
-    outb(PIC_SLAVE_COMMAND_PORT, PIC_ICW1_INIT | PIC_ICW1_ICW4);
+    pic_remap();
 
-    outb(PIC_MASTER_DATA_PORT, PIC_EOI);
-    outb(PIC_SLAVE_DATA_PORT, PIC_EOI + 0x08);
-
-    outb(PIC_MASTER_DATA_PORT, PIC_ICW1_INTERVAL4);
-    outb(PIC_SLAVE_DATA_PORT, PIC_ICW1_SINGLE);
-
-    outb(PIC_MASTER_DATA_PORT, PIC_ICW4_8086);
-    outb(PIC_SLAVE_DATA_PORT, PIC_ICW4_8086);
     load_idt(&idtr);
     __asm__ __volatile__("sti");
 }
@@ -61,9 +52,11 @@ uint8_t idt_allocate_vector() {
 }
 
 void idt_free_vector(uint8_t vector) {
+    __asm__ __volatile__("cli");
     idt_set_discriptor(vector, 0, 0, 0);
     routine_services[vector] = 0;
     vectors[vector] = 0;
+    __asm__ __volatile__("cli");
 }
 
 void print_idt() {

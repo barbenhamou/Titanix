@@ -2,18 +2,17 @@
 
 uint64_t current_tick = 0;
 static uint8_t pit_vector;
+static bool_t watching = FALSE, masked = FALSE, activated = FALSE;
 
 static void timer_func(isr_frame_t* frame) {
-    current_tick++;
-    monitor_write("TICK: ");
-    DEBUG("%d\n", current_tick);
-    monitor_put_dec(current_tick);
-    monitor_write("\n");
-
-    if (pit_vector >= 40) {
-        outb(PIC_SLAVE_COMMAND_PORT, PIC_EOI);
+    if (watching) {
+        current_tick++;
+        monitor_write("TICK: ");
+        monitor_put_dec(current_tick);
+        monitor_write("\n");
     }
-    outb(PIC_MASTER_COMMAND_PORT, PIC_EOI);
+
+    pic_send_eoi(pit_vector);
 }
 
 void init_timer(uint32_t frequency) {
@@ -24,8 +23,8 @@ void init_timer(uint32_t frequency) {
 
     outb(0x43, 0x34);
 
-    uint8_t l = (uint8_t)(8 & 0xff);
-    uint8_t h = (uint8_t)((8 >> 8) & 0xff);
+    uint8_t l = (uint8_t)(devisor & 0xff);
+    uint8_t h = (uint8_t)((devisor >> 8) & 0xff);
 
     outb(0x40, l);
     outb(0x40, h);
@@ -33,4 +32,30 @@ void init_timer(uint32_t frequency) {
     __asm__ __volatile__("sti");
 
     idt_install_irq(pit_vector, (void*)&timer_func);
+    if (masked) {
+        pic_unmask_irq(pit_vector);
+    }
+}
+
+void pit_disable() {
+    pic_mask_irq(pit_vector);
+    masked = TRUE;
+    idt_free_vector(pit_vector);
+    pit_vector = 0;
+}
+
+void pit_deadline(uint64_t delay) {
+    if (!activated) {
+        current_tick = 0; 
+        activated = TRUE;
+        pic_unmask_irq(pit_vector);
+    }
+    watching = TRUE;
+    while (current_tick < delay) {
+        __asm__ __volatile__("hlt");
+        continue;
+    }
+    pic_mask_irq(pit_vector);
+    masked = TRUE;
+    watching = FALSE;
 }

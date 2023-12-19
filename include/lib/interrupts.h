@@ -6,6 +6,7 @@
 #include "types.h"
 #include "functions.h"
 #include "monitor.h"
+#include "pic.h"
 
 #define PAGE_FAULT 0x0e
 #define DOUBLE_FAULT 0x08
@@ -15,23 +16,7 @@
 #define IDT_MAX_DISCRIPTORS 256
 #define IDT_MAX_CPU_EXCEPTIONS 32
 
-#define PIC_MASTER_COMMAND_PORT 0x20
-#define PIC_MASTER_DATA_PORT 0x21
-#define PIC_SLAVE_COMMAND_PORT 0xa0
-#define PIC_SLAVE_DATA_PORT 0xa1
 
-#define PIC_EOI 0x20
-
-#define PIC_ICW1_ICW4	    0x01
-#define PIC_ICW1_SINGLE	    0x02
-#define PIC_ICW1_INTERVAL4  0x04
-#define PIC_ICW1_LEVEL	    0x08
-#define PIC_ICW1_INIT	    0x10
-
-#define PIC_ICW4_8086	    0x01
-#define PIC_ICW4_AUTO	    0x02
-#define PIC_ICW4_BUF_SLAVE  0x08
-#define PIC_ICW4_BUF_MASTER 0x0C
 
 typedef struct idt_gate_t {
     uint16_t isr_low;
