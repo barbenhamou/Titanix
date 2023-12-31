@@ -1,14 +1,15 @@
 #include "../../include/lib/pit.h"
 
-uint64_t current_tick = 0;
+uint64_t current_tick = 0, global_tick = 0;
 static uint8_t pit_vector;
 static bool_t watching = FALSE, masked = FALSE, activated = FALSE;
 
 static void timer_func(isr_frame_t* frame) {
     if (watching) {
         current_tick++;
+        global_tick++;
         monitor_write("TICK: ");
-        monitor_put_dec(current_tick);
+        monitor_put_dec(global_tick);
         monitor_write("\n");
     }
 
@@ -46,10 +47,10 @@ void pit_disable() {
 
 void pit_deadline(uint64_t delay) {
     if (!activated) {
-        current_tick = 0; 
         activated = TRUE;
         pic_unmask_irq(pit_vector);
     }
+    current_tick = 0;
     watching = TRUE;
     while (current_tick < delay) {
         __asm__ __volatile__("hlt");
