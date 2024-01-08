@@ -1,5 +1,8 @@
 [GLOBAL start]                  ; Kernel entry point.
 global p4_table
+global p3_table
+global p2_table
+global p1_table
 
 section .bss
     align 0x1000                                ; align at 4 bytes
@@ -12,6 +15,8 @@ section .bss
     p3_table:
         resb 0x1000
     p2_table:
+        resb 0x1000
+    p1_table:
         resb 0x1000
 
 
@@ -34,17 +39,21 @@ section .text
     or eax, 0b11
     mov dword [p3_table + 0], eax
 
-    ; point each page table level two entry to a page
+    mov eax, p1_table
+    or eax, 0b11
+    mov dword [p2_table + 0], eax
+
+    ; point each page table level one entry to a page
     mov ecx, 0         ; counter variable
-    .map_p2_table:
-        mov eax, 0x200000  ; 2MiB
+    .map_p1_table:
+        mov eax, 0x1000  ; 1KiB
         mul ecx
-        or eax, 0b10000011
-        mov [p2_table + ecx * 8], eax
+        or eax, 0b11
+        mov [p1_table + ecx * 8], eax
 
         inc ecx
         cmp ecx, 512
-        jne .map_p2_table
+        jne .map_p1_table
 
     ; move page table address to cr3
     mov eax, p4_table

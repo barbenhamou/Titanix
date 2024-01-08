@@ -12,9 +12,9 @@ int main()
     init_monitor();
     init_mmap();
     idt_init();
-    init_timer(500);
-    pit_deadline(1193182/10000);
-    pit_disable();
+    // init_timer(500);
+    // pit_deadline(1193182/10000);
+    // pit_disable();
     DEBUG("after\n");
     keyboard_init();
     return 0;
