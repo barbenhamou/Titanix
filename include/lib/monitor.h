@@ -66,4 +66,5 @@ void monitor_put_hex(uint32_t n);
 */
 void monitor_put_dec(uint32_t n);
 
+void handle_back_space();
 #endif

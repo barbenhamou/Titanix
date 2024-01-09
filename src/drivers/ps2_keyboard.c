@@ -115,6 +115,10 @@ void ps2_keyboard_handle_scancode(uint8_t* scancode, uint64_t bytes) {
 
     char_t c = analayze_ascii(rendered_scancode);
     if (c == '~') return;
+    if (c == '\n') {
+        monitor_put('\n');
+        return;
+    }
     monitor_put(c);
 }
 
@@ -173,6 +177,7 @@ char_t analayze_ascii(uint64_t scancode) {
         }
 
         case BACKSPACE: {
+            handle_back_space();
             return '~';
             break;
         }

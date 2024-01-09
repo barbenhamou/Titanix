@@ -108,6 +108,18 @@ static void monitor_clear() {
     move_cursor();
 }
 
+void handle_back_space() {
+    if (cursor_x == 0) {
+        cursor_x = 79;
+        cursor_y--;
+        move_cursor();
+    } else {
+        cursor_x--;
+        move_cursor();
+    }
+    terminal_buffer[cursor_x + 80 * cursor_y] = blank();
+}
+
 void monitor_write(char_t *c) {
     int i = 0;
     while (c[i]) {

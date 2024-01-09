@@ -90,7 +90,7 @@ enum CODES {
 	CTRL_UP = 0xf014,
 	SLASH = 0x4a,
 	MINUS = 0x4e,
-	ENTER = 0x5e,
+	ENTER = 0x5a,
 	BACKSPACE = 0x66
 };
 
