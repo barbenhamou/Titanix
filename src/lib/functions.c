@@ -61,8 +61,8 @@ uint32_t strlen(char_t *p) {
     return -1;
 }
 
-byte_t *memset(byte_t *p, byte_t val, uint32_t bytes) {
-    for (uint32_t i = 0; i < bytes; ++i) {
+byte_t *memset(byte_t *p, byte_t val, uint64_t bytes) {
+    for (uint64_t i = 0; i < bytes; ++i) {
         p[i] = val;
     }
     return p;

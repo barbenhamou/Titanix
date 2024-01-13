@@ -109,6 +109,9 @@ static void monitor_clear() {
 }
 
 void handle_back_space() {
+    if (cursor_x == 0 && cursor_y == 0) {
+        return;
+    }
     if (cursor_x == 0) {
         cursor_x = 79;
         cursor_y--;
@@ -117,6 +120,7 @@ void handle_back_space() {
         cursor_x--;
         move_cursor();
     }
+    if (terminal_buffer[cursor_x + 80 * cursor_y] == blank()) handle_back_space();
     terminal_buffer[cursor_x + 80 * cursor_y] = blank();
 }
 

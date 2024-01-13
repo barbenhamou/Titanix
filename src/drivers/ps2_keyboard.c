@@ -102,7 +102,7 @@ uint64_t ps2_keyboard_get_scancode(uint8_t* scancode_out) {
 
 void ps2_keyboard_handle_scancode(uint8_t* scancode, uint64_t bytes) {
     uint64_t rendered_scancode = 0x00;
-    if (counter == 1000) {
+    if (counter == 100000) {
         set_mask(FALSE);
         return;
     }

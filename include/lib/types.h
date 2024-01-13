@@ -14,6 +14,7 @@ typedef unsigned char char_t;
 typedef unsigned char uint8_t;
 typedef byte_t bool_t;
 
+#define NULL 0
 #define TRUE 1
 #define FALSE 0
 
