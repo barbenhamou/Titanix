@@ -131,7 +131,7 @@ void monitor_write(char_t *c) {
     }
 }
 
-void monitor_put_hex(uint32_t n) {  
+void monitor_put_hex(uint64_t n) {  
     monitor_write("0x");
     if (n == 0) {
         monitor_write("0");
@@ -139,7 +139,7 @@ void monitor_put_hex(uint32_t n) {
     }
 
     uint32_t num = n, m = 0, i = 0;
-    char_t hex[8];
+    char_t hex[16];
 
 
     while (num > 0) {
@@ -163,8 +163,8 @@ void monitor_put_hex(uint32_t n) {
         ++i;
     }
 
-    for (int j = 0; j < 8; ++j) {
-            monitor_put(hex[7-j]);
+    for (int j = 0; j < 16; ++j) {
+            monitor_put(hex[15-j]);
     }
 }
 

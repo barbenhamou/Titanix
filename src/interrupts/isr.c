@@ -54,6 +54,11 @@ void exception_handler(isr_frame_t* frame) {
 
 void analyze_page_fault(isr_frame_t* frame) {
     monitor_write(exception_labels[frame->basic_frame.vector]);
+    uint64_t faulting_address;
+    __asm__ __volatile__("mov %%cr2, %0" : "=r" (faulting_address));
+    monitor_put('\n');
+    monitor_put_hex(faulting_address);
+
     monitor_put('\n');
     __asm__ __volatile__ ("cli;hlt");
 }

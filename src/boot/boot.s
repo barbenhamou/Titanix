@@ -50,6 +50,7 @@ section .text
         mul ecx
         or eax, 0b11
         mov [p1_table + ecx * 8], eax
+        mov dword [p1_table + ecx * 8 + 4], 0  
 
         inc ecx
         cmp ecx, 512

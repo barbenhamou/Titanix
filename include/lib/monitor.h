@@ -57,7 +57,7 @@ void init_monitor();
 
     Printing a hex to vga.
 */
-void monitor_put_hex(uint32_t n);
+void monitor_put_hex(uint64_t n);
 
 /*
     @param n - wanted decimal.

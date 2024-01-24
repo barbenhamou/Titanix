@@ -61,11 +61,12 @@ uint32_t strlen(char_t *p) {
     return -1;
 }
 
-byte_t *memset(byte_t *p, byte_t val, uint64_t bytes) {
+void *memset(void *p, byte_t val, uint64_t bytes) {
+    byte_t* dest = (byte_t*)p;
     for (uint64_t i = 0; i < bytes; ++i) {
-        p[i] = val;
+        dest[i] = val;
     }
-    return p;
+    return dest;
 }
 
 word_t *memsetw(word_t *p, word_t val, uint32_t words) {

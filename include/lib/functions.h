@@ -109,7 +109,7 @@ uint32_t strlen(char_t *p);
 
     Changing the amount of bytes to value.
 */
-byte_t *memset(byte_t *p, byte_t val, uint64_t bytes);
+void *memset(void *p, byte_t val, uint64_t bytes);
 
 /*
     @param p - pointer to change.

@@ -13,8 +13,10 @@ uint64_t data_size;
 
 void pmm_section_manager_create(void* base) {
     if (pfa_allowing_allocation) return;
-    pmm_sections = (pmm_section_t*)base;
-    memset(pmm_sections, 0, data_size);
+    pmm_sections = (pmm_section_t*)(base);
+    DEBUG("1\n");
+    memset(&pmm_sections, 0, data_size);
+    DEBUG("1\n");
     pmm_section_head = 1;
 }
 
@@ -145,11 +147,11 @@ void pmm_start() {
 
     estimated_total_memory *= (ROUND_OFF * MEGABYTE);
     data_size = estimated_total_memory / PMM_MAX_HEADER_PROPOTION;
-
+        
     for (uint64_t i = 0; i < mmap->length; ++i) {
         if (mmap->mmap_entries[i].type == TYPE_USABLE) {
             if (mmap->mmap_entries[i].length >= data_size) {
-                pmm_section_manager_create((void*)mmap->mmap_entries[i].base);
+                pmm_section_manager_create((byte_t*)mmap->mmap_entries[i].base);
                 break;
             }
         }
@@ -211,7 +213,9 @@ void pmm_dump() {
     INFO("Free memory: %d megabytes\n", free_memory / MEGABYTE);
     INFO("Total memory: %d megabytes\n", estimated_total_memory / MEGABYTE);
     INFO("Regions:\n");
+    
     for (pmm_section_t* current = pmm_sections; current != NULL; current = current->next) {
-        INFO("\t%xH => %dkB/%dmB %s\n", current->start, (current->pages * PAGE_SIZE) / 1024, (current->pages * PAGE_SIZE) / MEGABYTE, mem_status_discription(current->free));
+        if (current == NULL) return;
+        INFO("\t%x => %dkB/%dmB\n", current->start, (current->pages * PAGE_SIZE) / 1024, (current->pages * PAGE_SIZE) / MEGABYTE);
     }
 }
