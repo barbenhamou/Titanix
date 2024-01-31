@@ -58,8 +58,9 @@ void analyze_page_fault(isr_frame_t* frame) {
     __asm__ __volatile__("mov %%cr2, %0" : "=r" (faulting_address));
     monitor_put('\n');
     monitor_put_hex(faulting_address);
-
     monitor_put('\n');
+    int p = !(frame->basic_frame.error_code & 0x1);
+    monitor_put_dec(p);
     __asm__ __volatile__ ("cli;hlt");
 }
 

@@ -21,7 +21,7 @@ typedef struct pmm_pool_t {
     uint64_t base;
 } pmm_pool_t;
 
-#define PMM_MAX_HEADER_PROPOTION 64
+#define PMM_MAX_HEADER_PROPORTION 64
 
 extern bool_t pfa_allowing_allocation;
 
@@ -34,6 +34,6 @@ uint64_t memory_status(uint64_t mmap_signal);
 void pmm_recombine();
 void pmm_recalculate_free_memory();
 void pmm_start();
-static char* mem_status_discription(uint64_t state);
+static char_t* mem_status_discription(uint64_t state);
 void pmm_dump();
 #endif

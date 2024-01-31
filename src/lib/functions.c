@@ -62,11 +62,10 @@ uint32_t strlen(char_t *p) {
 }
 
 void *memset(void *p, byte_t val, uint64_t bytes) {
-    byte_t* dest = (byte_t*)p;
     for (uint64_t i = 0; i < bytes; ++i) {
-        dest[i] = val;
+        ((byte_t*)p)[i] = (byte_t)val;
     }
-    return dest;
+    return p;
 }
 
 word_t *memsetw(word_t *p, word_t val, uint32_t words) {
@@ -157,6 +156,10 @@ void puts(char_t* str,...) {
 
                     ++i;
                     break; 
+                }
+                case 's': {
+                    char_t* sentence = va_arg(ptr, char_t*);
+                    for (uint32_t i = 0; i < strlen(sentence); ++i) {}
                 }
             }
 

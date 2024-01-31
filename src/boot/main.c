@@ -10,7 +10,8 @@ int main()
     //put_mmap();
     //DEBUG("reached here!\n");
     //keyboard_init();
-    //pmm_start();
+    DEBUG("sad\n");
+    pmm_start();
     //pmm_dump();
     return 0;
 }

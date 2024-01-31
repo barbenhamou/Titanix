@@ -6,7 +6,7 @@ extern bool_t pfa_allowing_allocation;
 uint64_t free_memory;
 
 pmm_section_t* pmm_sections = NULL;
-pmm_pool_t* ppm_pool = NULL;
+pmm_pool_t* pmm_pool = NULL;
 
 uint64_t pmm_section_head;
 uint64_t data_size;
@@ -15,9 +15,9 @@ void pmm_section_manager_create(void* base) {
     if (pfa_allowing_allocation) return;
     pmm_sections = (pmm_section_t*)(base);
     DEBUG("1\n");
-    memset(&pmm_sections, 0, data_size);
-    DEBUG("1\n");
+    //memset(pmm_sections, 0, data_size);
     pmm_section_head = 1;
+    DEBUG("2\n");
 }
 
 void pmm_section_manager_reindex() {
@@ -146,12 +146,12 @@ void pmm_start() {
     }
 
     estimated_total_memory *= (ROUND_OFF * MEGABYTE);
-    data_size = estimated_total_memory / PMM_MAX_HEADER_PROPOTION;
+    data_size = estimated_total_memory / PMM_MAX_HEADER_PROPORTION;
         
     for (uint64_t i = 0; i < mmap->length; ++i) {
         if (mmap->mmap_entries[i].type == TYPE_USABLE) {
             if (mmap->mmap_entries[i].length >= data_size) {
-                pmm_section_manager_create((byte_t*)mmap->mmap_entries[i].base);
+                pmm_section_manager_create((void*)mmap->mmap_entries[i].base);
                 break;
             }
         }
@@ -162,7 +162,6 @@ void pmm_start() {
     pmm_sections->start = 0x0000000000000000;
     pmm_sections->pages = MEGABYTE / PAGE_SIZE;
     pmm_sections->free = BAD_MEMORY;
-
     pmm_section_t* current = pmm_sections;
     for (uint64_t i = 0; i < mmap->length; ++i) {
         if (mmap->mmap_entries[i].base == current->start) {
@@ -188,17 +187,18 @@ void pmm_start() {
             }
         }
     }
-
+    
     pmm_recombine();
 
     pmm_recalculate_free_memory();
-
+    
     pfa_allowing_allocation = TRUE;
+    DEBUG("3\n");
 
     //lock pages now
 }
 
-static char* mem_status_discription(uint64_t state) {
+static char_t* mem_status_discription(uint64_t state) {
     switch (state) {
         case BAD_MEMORY: return "BAD";
         case FREE_MEMORY: return "FREE";
@@ -216,6 +216,6 @@ void pmm_dump() {
     
     for (pmm_section_t* current = pmm_sections; current != NULL; current = current->next) {
         if (current == NULL) return;
-        INFO("\t%x => %dkB/%dmB\n", current->start, (current->pages * PAGE_SIZE) / 1024, (current->pages * PAGE_SIZE) / MEGABYTE);
+        INFO("\t%x => %dkB/%dmB, avail:%s\n", current->start, (current->pages * PAGE_SIZE) / 1024, (current->pages * PAGE_SIZE) / MEGABYTE, mem_status_discription(current->free));
     }
 }
