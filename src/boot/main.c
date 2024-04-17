@@ -4,14 +4,24 @@
 
 int main()
 {
-    init_monitor();
+    init_real_mode();
     init_mmap();
+    init_monitor();
+
+    put_mmap();
+
+    entries_list_t* list = make_entries_list();
+    //print_list(list);
+
+
+    //buddy_t* buddy = new_buddy((memory_region_t){0x0, 2048});
+    byte_t* ptr = alloc(0x99900);
+    //pmm_start(list);
+
     idt_init();
-    //put_mmap();
-    //DEBUG("reached here!\n");
-    //keyboard_init();
-    DEBUG("sad\n");
-    pmm_start();
+    keyboard_init();
+
+    
     //pmm_dump();
     return 0;
 }

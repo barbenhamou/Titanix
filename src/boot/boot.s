@@ -1,60 +1,75 @@
 [GLOBAL start]                  ; Kernel entry point.
+[EXTERN main]
 global p4_table
 global p3_table
 global p2_table
-global p1_table
 
 section .bss
+    align 0x1000
+    %define p4_table 0x60000
+    %define p3_table 0x61000
+    %define p2_table 0x62000
+    %define p1_table 0x82000
+
     align 0x1000                                ; align at 4 bytes
     resb 0x2000
     kernel_stack:                               ; label points to beginning of memory
 
-    align 0x1000
-    p4_table:
-        resb 0x1000
-    p3_table:
-        resb 0x1000
-    p2_table:
-        resb 0x1000
-    p1_table:
-        resb 0x1000
+
 
 
         
 
 section .text
-  bits 32
-  [EXTERN main]                   ; This is the entry point of our C code
+  bits 32            
   start:
     mov esp, kernel_stack
-    push ebx 
-    ;Paging
+
     mov eax, p3_table
     or eax, 0b11 ;
-    mov dword [p4_table + 0], eax
+    mov dword [p4_table + 0], eax ; 1 - p3 level and p4 level
+    mov dword [p4_table + 4], 0
 
-    ; Point the first entry of the level 3 page table to the first entry in the
-    ; p2 table
     mov eax, p2_table
-    or eax, 0b11
-    mov dword [p3_table + 0], eax
+    mov edi, p3_table
+    mov ecx, 32                    ; 32 - p2 level
+    .map_p3_table:
+        mov edx, eax
+        or edx, 1<<0 | 1<<1
+        mov dword [edi], edx
+        mov dword [edi + 4], 0
+        add eax, 0x1000
+        add edi, 8
+        loop .map_p3_table
 
+    mov ecx, 2
+    shl ecx, 9                      ; 512 - p1 level
+    xor eax, eax                
+    mov ebx, 1<<0 | 1<<1
     mov eax, p1_table
-    or eax, 0b11
-    mov dword [p2_table + 0], eax
+    mov edi, p2_table
+    .map_p2_table:
+        mov edx, eax
+        or edx, ebx
+        mov dword [edi], edx
+        mov dword [edi + 4], 0
+        add edi, 8
+        add eax, 0x1000
+        loop .map_p2_table
 
-    ; point each page table level one entry to a page
-    mov ecx, 0         ; counter variable
+    mov ecx, 8
+    shl ecx, 9
+    xor eax, eax
+    mov ebx, 1<<0 | 1<<1
+    mov edi, p1_table
     .map_p1_table:
-        mov eax, 0x1000  ; 1KiB
-        mul ecx
-        or eax, 0b11
-        mov [p1_table + ecx * 8], eax
-        mov dword [p1_table + ecx * 8 + 4], 0  
+        or eax, ebx
+        mov [edi], eax
+        mov dword [edi+4], 0
+        add edi, 8
+        add eax, 0x1000
+        loop .map_p1_table
 
-        inc ecx
-        cmp ecx, 512
-        jne .map_p1_table
 
     ; move page table address to cr3
     mov eax, p4_table

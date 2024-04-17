@@ -162,13 +162,16 @@ void monitor_put_hex(uint64_t n) {
         num /= 16;
         ++i;
     }
-
-    for (int j = 0; j < 16; ++j) {
-            monitor_put(hex[15-j]);
+    for (int j = i - 1; j >= 0; --j) {
+            monitor_put(hex[j]);
     }
 }
 
 void monitor_put_dec(uint32_t n) {
+    if (n == 0) {
+        monitor_put('0');
+        return;
+    }
     uint32_t num = n, i = 0, m;
     char_t dec[10];
     while (num > 0) {

@@ -2,3 +2,4 @@
 build
 .gdbinit
 test.s
+.git-credentials

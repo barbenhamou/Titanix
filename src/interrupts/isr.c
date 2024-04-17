@@ -16,7 +16,7 @@ static const char_t* exception_labels[] = {
     "[0x0B] Absent Segment Exception",
     "[0x0C] Stack-segment Fault",
     "[0x0D] General Protection Fault",
-    "[0x0E] Page Fault",
+    "[0x0E] Page Fault ",
     "[0x0F] Inexplicable Error",
     "[0x10] x87 Floating Exception",
     "[0x11] Alignment Check",
@@ -55,12 +55,22 @@ void exception_handler(isr_frame_t* frame) {
 void analyze_page_fault(isr_frame_t* frame) {
     monitor_write(exception_labels[frame->basic_frame.vector]);
     uint64_t faulting_address;
-    __asm__ __volatile__("mov %%cr2, %0" : "=r" (faulting_address));
-    monitor_put('\n');
+    __asm__ __volatile__("mov %%cr2, %0": "=r" (faulting_address));
     monitor_put_hex(faulting_address);
     monitor_put('\n');
-    int p = !(frame->basic_frame.error_code & 0x1);
-    monitor_put_dec(p);
+    uint8_t err = frame->basic_frame.error_code;
+    uint8_t present_bit = err & 0b00000001;
+    uint8_t write_bit = (err & 0b00000010) >> 1;
+    uint8_t reserved_bit = (err & 0b00000100) >> 2;
+
+    monitor_write("\npresent-bit = ");
+    monitor_put_dec(present_bit);
+    monitor_write("\nwrite-bit = ");
+    monitor_put_dec(write_bit);
+    monitor_write("\nreserved-bit = ");
+    monitor_put_dec(reserved_bit);
+
+    ERROR("%x\n", faulting_address);
     __asm__ __volatile__ ("cli;hlt");
 }
 

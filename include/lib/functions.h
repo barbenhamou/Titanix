@@ -133,6 +133,13 @@ void init_real_mode(void);
     @param str - a msg to pass.
     @va args - arguments related.
 
+*/
+void puts(char_t* str,...);
+
+/*
+    @param str - a msg to pass.
+    @va args - arguments related.
+
     Declaring debug time.
 */
 void DEBUG(char_t *str,...);

@@ -9,7 +9,7 @@ ivt:
     dw 0x03ff ; Limit  0 - 15
     dq 0 ; Base 16 - 89
     
-extern p4_table
+%define p4_table 0x60000
 bits 32
 
 protected_to_long:

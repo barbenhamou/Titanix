@@ -4,7 +4,6 @@ global load_mmap
 
 section .text 
 bits 16
-
 load_mmap:
         mov edi, MMAP+4
         xor ebx, ebx

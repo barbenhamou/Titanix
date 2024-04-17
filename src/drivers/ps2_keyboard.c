@@ -504,9 +504,9 @@ void keyboard_init() {
     keyboard_reset_state();
 
     keyboard_vector = idt_allocate_vector();
-    DEBUG("%d\n", keyboard_vector);
+    
     idt_install_irq(keyboard_vector, (void*)&keyboard_handler);
-    if (responsivity_test()) {
+    if (!responsivity_test()) {
         DEBUG("d\n");
     }
 }

@@ -6,6 +6,7 @@
 #include "interrupts.h"
 #include "pit.h"
 #include "ps2_keyboard.h"
+#include "buddy.h"
 #include "pmm.h"
 
 #endif

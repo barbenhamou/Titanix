@@ -1,111 +1,112 @@
 #include "../../include/lib/pmm.h"
 
-bool_t pfa_allowing_allocation = FALSE;
-extern bool_t pfa_allowing_allocation;
+extern bool_t pfa_allowing_allocations;
+
+bool_t pfa_allowing_allocations = FALSE;
 
 uint64_t free_memory;
 
-pmm_section_t* pmm_sections = NULL;
-pmm_pool_t* pmm_pool = NULL;
+extern void set(void* ptr, uint64_t val, uint64_t amount);
 
-uint64_t pmm_section_head;
-uint64_t data_size;
+pmm_section_t* pmm_sections = NULL;
+pmm_pool_t* pmm_pools = NULL;
+uint64_t _pmm_section_head;
+uint64_t pmm_data_size;
+
+void pmm_section_manager_reindex();
 
 void pmm_section_manager_create(void* base) {
-    if (pfa_allowing_allocation) return;
-    pmm_sections = (pmm_section_t*)(base);
-    DEBUG("1\n");
-    //memset(pmm_sections, 0, data_size);
-    pmm_section_head = 1;
-    DEBUG("2\n");
+    if (pfa_allowing_allocations) return;
+    pmm_sections = (pmm_section_t*)base;
+    set(pmm_sections, 0, pmm_data_size); // helps validate the area is large enough
+    _pmm_section_head = 1;
+    INFO("BYE");
 }
 
 void pmm_section_manager_reindex() {
-    pmm_section_head = 0;
-    for (uint64_t i = 0; (i * sizeof(pmm_section_t)) < data_size; ++i) {
+    _pmm_section_head = 0;
+    for (uint64_t i = 0; (i * sizeof(pmm_section_t)) < pmm_data_size; i++) {
         pmm_section_t* current = &pmm_sections[i];
         if (current->prev == NULL && current->next == NULL) {
-            pmm_section_head = i;
+            _pmm_section_head = i;
             return;
         }
     }
 }
 
 pmm_section_t* pmm_new_section() {
-    if (pmm_section_head * sizeof(pmm_section_t) >= data_size) return NULL;
-
-    pmm_section_t* new_section = &pmm_sections[pmm_section_head];
-
-    if (new_section->prev == NULL || new_section->next == NULL) {
-        pmm_section_manager_reindex();
-        new_section = &pmm_sections[pmm_section_head];
-        if (new_section->prev == NULL || new_section->next == NULL) return NULL;
+    if (_pmm_section_head * sizeof(pmm_section_t) >= pmm_data_size) {
+        return NULL;
     }
 
-    pmm_section_head++;
+    pmm_section_t* new_section = &pmm_sections[_pmm_section_head];
+    if (new_section->prev != NULL || new_section->next != NULL) {
+        pmm_section_manager_reindex();
+        new_section = &pmm_sections[_pmm_section_head];
+        if (new_section->prev != NULL || new_section->next != NULL) {
+            return NULL;
+        }
+    }
+
+    // DEBUG("%d\n", _pmm_section_head);
+    // DEBUG("%x\n", new_section);
+    // DEBUG("%x\n", &pmm_sections[_pmm_section_head - 1]);
+    _pmm_section_head++;
     return new_section;
 }
 
-void pmm_delete_section(pmm_section_t* to_delete) {
-    to_delete->prev = NULL;
-    to_delete->next = NULL;
-    to_delete->free = 0;
-    to_delete->pages = 0;
+void pmm_delete_section(pmm_section_t* section) {
+    section->prev = NULL;
+    section->next = NULL;
+    section->free = 0;
+    section->pages = 0;
+    section->start = 0;
 }
 
-void pmm_get_free() {
+uint64_t pmm_get_free_memory() {
     return free_memory;
 }
 
-uint64_t memory_status(uint64_t mmap_signal) {
-    //according to the mmap entry type, decide whether its okay to use this region. 1 okay, 0 no.
-    switch (mmap_signal) {
-    case TYPE_USABLE: 
-        return FREE_MEMORY; 
-
-    case TYPE_RESERVED:
-        return BAD_MEMORY; 
-    
-    case TYPE_ACPI_RECLAIMABLE_MEMORY: 
-        return BAD_MEMORY; 
-    
-    case TYPE_ACPI_NVS_MEMORY: 
-        return BAD_MEMORY; 
-
-    case TYPE_BAD_MEMORY: 
-        return BAD_MEMORY; 
-
-    default:
-        return BAD_MEMORY;
+uint64_t pmm_interpret_signal(uint64_t memory_map_signal) {
+    switch (memory_map_signal) {
+        case 2:
+            return PMM_SECTION_USED;
+        case 1:
+            return PMM_SECTION_FREE;
+        case 4:
+            return PMM_SECTION_BAD;
+        case 5:
+            return PMM_SECTION_BAD;
+        default:
+            return PMM_SECTION_BAD;
     }
 }
 
 void pmm_recombine() {
-    pmm_section_t* current = NULL;
+    pmm_section_t* current;
     uint64_t detected = 0;
-
-    for (uint64_t i = 0; !(detected == 0 && i > 0); ++i) {
+    // reiterate until all combined
+    for (uint64_t iteration = 0; !(detected == 0 && iteration > 0); iteration++) {
         detected = 0;
         for (current = pmm_sections; current != NULL; current = current->next) {
             if (current->next == NULL) {
-                break;
+                break;       // if next is null then break
             }
-
             if (current->free != current->next->free) {
-                continue;
+                continue;       // if types don't match then continue to next iteration
             }
-
-            detected = 1;
+            detected = 1;            
+            // since current->free == current->next->free
             current->pages += current->next->pages;
             if (current->next->next != NULL) {
                 current->next = current->next->next;
                 pmm_delete_section(current->next->prev);
                 current->next->prev = current;
-            } else {
+            }
+            else {
                 pmm_delete_section(current->next);
                 current->next = NULL;
             }
-
         }
     }
 }
@@ -114,7 +115,7 @@ void pmm_recalculate_free_memory() {
     pmm_section_t* current;
     free_memory = 0;
     for (current = pmm_sections; current != NULL; current = current->next) {
-        if (current->free == 1) {
+        if (current->free == PMM_SECTION_FREE) {
             free_memory += current->pages * PAGE_SIZE;
         }
     }
@@ -122,100 +123,116 @@ void pmm_recalculate_free_memory() {
 
 static uint64_t estimated_total_memory;
 
-#define MEGABYTE (1024 * 1024)
+#define MEGABYTE (1024*1024)
 #define ROUND_OFF 64
 
-void pmm_start() {
-    if (pfa_allowing_allocation) return;
-    mmap_t* mmap = (mmap_t*)(MMAP);
+// extern memory_map_t* memory_map;
+void pmm_start(entries_list_t* list) {
+    INFO("%x\n", list);
+    entries_list_t* memory_map = list;
+    if (pfa_allowing_allocations) return;
 
-    data_size = 0;
-    pmm_section_head = 0;
+    pmm_data_size = 0;
+    _pmm_section_head = 0;
     estimated_total_memory = 0;
     free_memory = 0;
 
-    for (uint64_t i = 0; i < mmap->length; ++i) {
-        if (mmap->mmap_entries[i].type == TYPE_USABLE) {
-            free_memory += mmap->mmap_entries[i].length;
+    // First document the size of memory and required pmm memory, "explore" memory map
+    for (uint64_t i = 0; i < get_size(memory_map); i++) {
+        if (get_entry_by_index(memory_map, i).type == TYPE_USABLE) {
+            free_memory += get_entry_by_index(memory_map, i).length;
         }
     }
-
+    // round up to nearest 64mb for estimated total memory to calculate pmm data size
     estimated_total_memory = free_memory / (ROUND_OFF * MEGABYTE);
-    if (free_memory % (ROUND_OFF * MEGABYTE)) {
-        ++estimated_total_memory;
-    }
-
+    if (free_memory % (ROUND_OFF * MEGABYTE) != 0) estimated_total_memory++;
     estimated_total_memory *= (ROUND_OFF * MEGABYTE);
-    data_size = estimated_total_memory / PMM_MAX_HEADER_PROPORTION;
-        
-    for (uint64_t i = 0; i < mmap->length; ++i) {
-        if (mmap->mmap_entries[i].type == TYPE_USABLE) {
-            if (mmap->mmap_entries[i].length >= data_size) {
-                pmm_section_manager_create((void*)mmap->mmap_entries[i].base);
+    pmm_data_size = estimated_total_memory / MAX_PMM_HEADER_PROPORTION;
+    
+
+    // Now find place to store pmm data
+    for (uint64_t i = 0; i < get_size(memory_map); i++) {
+        if (get_entry_by_index(memory_map, i).type == TYPE_USABLE) {
+            if (get_entry_by_index(memory_map, i).length >= pmm_data_size) {
+                qw_t* base = get_entry_by_index(memory_map, i).base;
+                pmm_section_manager_create((void*)base);
                 break;
             }
         }
     }
-
+    
+    // Now create the pmm data (cry)
+    // Create an initial section
     pmm_sections->prev = NULL;
     pmm_sections->next = NULL;
     pmm_sections->start = 0x0000000000000000;
     pmm_sections->pages = MEGABYTE / PAGE_SIZE;
-    pmm_sections->free = BAD_MEMORY;
+    pmm_sections->free = PMM_SECTION_BAD;
+
+    mmap_entry_t entry;
+
     pmm_section_t* current = pmm_sections;
-    for (uint64_t i = 0; i < mmap->length; ++i) {
-        if (mmap->mmap_entries[i].base == current->start) {
+    for (uint64_t i = 0; i < get_size(memory_map); i++) {
+        // This case mostly applies on the first iteration
+        entry = get_entry_by_index(memory_map, i);
+
+        if (entry.base == current->start) {
             continue;
-        } else {
+        }
+        else {
+            // Create a new pmm section based on the memory map entry information
             current->next = pmm_new_section();
-            current->next->prev = current;
+            DEBUG("%x\n", current->next);
+            current->next->prev = (struct _pmm_section*)current;
             current->next->next = NULL;
-            current->next->start = mmap->mmap_entries[i].base;
-            current->next->free = memory_status(mmap->mmap_entries[i].type);
-            current->next->pages = mmap->mmap_entries[i].length / PAGE_SIZE;
-            if (mmap->mmap_entries[i].length % PAGE_SIZE != 0) current->next->pages++;
+            current->next->start = entry.base;
+            current->next->free = pmm_interpret_signal(entry.type);
+            current->next->pages = entry.length / PAGE_SIZE;
+            if (entry.length % PAGE_SIZE != 0) current->next->pages++;
             current = current->next;
+            // If there is a gap between the current section and the previous one, create a new section labeled bad
             if (current->prev->start + (current->prev->pages * PAGE_SIZE) != current->start) {
-                current->prev->next = pmm_new_section();
-                current->prev->next->prev = current->prev;
-                current->prev->next->next = current;
-                current->prev->next->start = current->prev->start + (current->prev->pages * PAGE_SIZE);
-                current->prev->next->pages = (current->start - current->prev->next->start) / PAGE_SIZE;
+                current->prev->next = pmm_new_section();    // make new section between previous and current
+                current->prev->next->prev = current->prev;  // make new section previous current's current previous
+                current->prev->next->next = current;        // make new section next the current
+                current->prev->next->start = current->prev->start + (current->prev->pages * PAGE_SIZE); // make new section start at end of current previous
+                current->prev->next->pages = (current->start - current->prev->next->start) / PAGE_SIZE; // make new section size of the gap
                 if ((current->start - current->prev->next->start) % PAGE_SIZE != 0) current->prev->next->pages++;
-                current->prev->next->free = BAD_MEMORY;
-                current->prev = current->prev->next;
+                current->prev->next->free = PMM_SECTION_BAD;      // label new section as bad unusable 
+                current->prev = current->prev->next;        // make current previous the new section, current previous's next
             }
         }
     }
-    
+
     pmm_recombine();
 
     pmm_recalculate_free_memory();
-    
-    pfa_allowing_allocation = TRUE;
-    DEBUG("3\n");
 
-    //lock pages now
+    pfa_allowing_allocations = TRUE;
+    
+    // Lock the pmm data pages
+    //remove this - pmm_lock_pages(pmm_sections, (pmm_data_size / PAGING_PAGE_SIZE) + ((pmm_data_size % PAGING_PAGE_SIZE != 0) ? 1 : 0));
 }
 
-static char_t* mem_status_discription(uint64_t state) {
+static char* __memstate_string(uint64_t state) {
     switch (state) {
-        case BAD_MEMORY: return "BAD";
-        case FREE_MEMORY: return "FREE";
-        case USED: return "USED";
-        default: return "ERROR!";
+        case PMM_SECTION_FREE:
+            return "FREE";
+        case PMM_SECTION_USED:
+            return "USED";
+        case PMM_SECTION_BAD:
+            return "BAD.";
+        default:
+            return "ERR!";
     }
 }
 
 void pmm_dump() {
     pmm_recalculate_free_memory();
-    INFO("\nMemory State:\n");
-    INFO("Free memory: %d megabytes\n", free_memory / MEGABYTE);
-    INFO("Total memory: %d megabytes\n", estimated_total_memory / MEGABYTE);
-    INFO("Regions:\n");
-    
-    for (pmm_section_t* current = pmm_sections; current != NULL; current = current->next) {
-        if (current == NULL) return;
-        INFO("\t%x => %dkB/%dmB, avail:%s\n", current->start, (current->pages * PAGE_SIZE) / 1024, (current->pages * PAGE_SIZE) / MEGABYTE, mem_status_discription(current->free));
-    }
+    INFO("\r\nmemory state:\r\n\r\n");
+    INFO("free memory: %d megabytes\r\n", free_memory / MEGABYTE);
+    INFO("total memory: %d megabytes\r\n", estimated_total_memory / MEGABYTE);
+    INFO("regions:\r\n");
+    for (pmm_section_t* current = pmm_sections; current != NULL; current = current->next)
+        INFO("\t%xh => %dkB/%dmB %s\r\n", current->start, (current->pages * PAGE_SIZE) / 1024, (current->pages * PAGE_SIZE) / MEGABYTE, __memstate_string(current->free));
 }
