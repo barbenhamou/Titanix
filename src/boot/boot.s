@@ -4,12 +4,12 @@ global p4_table
 global p3_table
 global p2_table
 
+%define p4_table 0x60000
+%define p3_table 0x61000
+%define p2_table 0x62000
+
 section .bss
     align 0x1000
-    %define p4_table 0x60000
-    %define p3_table 0x61000
-    %define p2_table 0x62000
-    %define p1_table 0x82000
 
     align 0x1000                                ; align at 4 bytes
     resb 0x2000
@@ -26,49 +26,35 @@ section .text
     mov esp, kernel_stack
 
     mov eax, p3_table
-    or eax, 0b11 ;
-    mov dword [p4_table + 0], eax ; 1 - p3 level and p4 level
-    mov dword [p4_table + 4], 0
+    or eax, 1 << 0 | 1 << 1
+    mov dword [p4_table+0], eax
+    mov dword [p4_table+4], 0
 
+    ; Point the first entry in the p3 table to the p2 table
     mov eax, p2_table
     mov edi, p3_table
-    mov ecx, 32                    ; 32 - p2 level
+    mov ecx, 8
     .map_p3_table:
         mov edx, eax
-        or edx, 1<<0 | 1<<1
+        or edx, 1 << 0 | 1 << 1
         mov dword [edi], edx
         mov dword [edi + 4], 0
         add eax, 0x1000
         add edi, 8
         loop .map_p3_table
 
-    mov ecx, 2
-    shl ecx, 9                      ; 512 - p1 level
-    xor eax, eax                
-    mov ebx, 1<<0 | 1<<1
-    mov eax, p1_table
+    mov ecx, 8
+    shl ecx, 9                  ; multiply by 512
+    xor eax, eax                ; start address is 0
+    mov ebx, 1 << 0 | 1 << 1 | 1 << 7
     mov edi, p2_table
     .map_p2_table:
-        mov edx, eax
-        or edx, ebx
-        mov dword [edi], edx
+        or eax, ebx
+        mov dword [edi], eax
         mov dword [edi + 4], 0
         add edi, 8
-        add eax, 0x1000
+        add eax, 0x200000
         loop .map_p2_table
-
-    mov ecx, 8
-    shl ecx, 9
-    xor eax, eax
-    mov ebx, 1<<0 | 1<<1
-    mov edi, p1_table
-    .map_p1_table:
-        or eax, ebx
-        mov [edi], eax
-        mov dword [edi+4], 0
-        add edi, 8
-        add eax, 0x1000
-        loop .map_p1_table
 
 
     ; move page table address to cr3

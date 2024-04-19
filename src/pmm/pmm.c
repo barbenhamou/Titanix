@@ -4,23 +4,18 @@ extern bool_t pfa_allowing_allocations;
 
 bool_t pfa_allowing_allocations = FALSE;
 
-uint64_t free_memory;
+extern uint64_t free_memory;
 
-extern void set(void* ptr, uint64_t val, uint64_t amount);
-
-pmm_section_t* pmm_sections = NULL;
+extern pmm_section_t* pmm_sections = NULL;
 pmm_pool_t* pmm_pools = NULL;
 uint64_t _pmm_section_head;
 uint64_t pmm_data_size;
 
-void pmm_section_manager_reindex();
-
 void pmm_section_manager_create(void* base) {
     if (pfa_allowing_allocations) return;
     pmm_sections = (pmm_section_t*)base;
-    set(pmm_sections, 0, pmm_data_size); // helps validate the area is large enough
+    memset(pmm_sections, 0, pmm_data_size); // helps validate the area is large enough
     _pmm_section_head = 1;
-    INFO("BYE");
 }
 
 void pmm_section_manager_reindex() {
@@ -48,9 +43,6 @@ pmm_section_t* pmm_new_section() {
         }
     }
 
-    // DEBUG("%d\n", _pmm_section_head);
-    // DEBUG("%x\n", new_section);
-    // DEBUG("%x\n", &pmm_sections[_pmm_section_head - 1]);
     _pmm_section_head++;
     return new_section;
 }

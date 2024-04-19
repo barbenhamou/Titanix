@@ -8,20 +8,11 @@ int main()
     init_mmap();
     init_monitor();
 
-    put_mmap();
-
     entries_list_t* list = make_entries_list();
-    //print_list(list);
-
-
-    //buddy_t* buddy = new_buddy((memory_region_t){0x0, 2048});
-    byte_t* ptr = alloc(0x99900);
-    //pmm_start(list);
+    pmm_start(list);
+    pmm_dump();
 
     idt_init();
     keyboard_init();
-
-    
-    //pmm_dump();
     return 0;
 }

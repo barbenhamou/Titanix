@@ -12,7 +12,7 @@
 #define TYPE_ACPI_NVS_MEMORY 4
 #define TYPE_BAD_MEMORY 5
 
-#define ALIGN(num, align) (((num)+(align) - 1) & (-(align)))
+#define ALIGN(num, align) (((num)+(align)-1) & (-(align))) 
 
 #define MMAP 0x5000
 #define PAGE_SIZE 0x1000
@@ -53,6 +53,8 @@ typedef struct memory_region_t {
 
 
 byte_t *alloc(uint64_t len);
+
+byte_t* allocate_memory(uint64_t length);
 
 void init_real(void);
 

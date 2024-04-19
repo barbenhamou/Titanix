@@ -19,17 +19,20 @@ byte_t *alloc(uint64_t length) {
     for (i = 0; i < size; ++i) {
         if (mmap->mmap_entries[i].type == TYPE_USABLE && mmap->mmap_entries[i].length > length) {
             chosen_chunk = i;
-            break;
+            DEBUG("IN FOR\n");
+            
         }
     }
 
     byte_t *allocated = (byte_t*)ALIGN(mmap->mmap_entries[chosen_chunk].base + mmap->mmap_entries[chosen_chunk].length - length, PAGE_SIZE);
-
+    DEBUG("AFTER FOR\n");
     mmap->mmap_entries[chosen_chunk].length -= length;
     INFO("Allocted %x bytes from %x; %x left in this section.\n", length, mmap->mmap_entries[chosen_chunk].base, mmap->mmap_entries[chosen_chunk].length);
 
     if (allocated != 0) {
+        DEBUG("BEFORE SETTING 0 addr %x\n", allocated);
         memset(allocated, 0, length);
+        DEBUG("AFTER SETTING 0\n");
     }
 
     return allocated;
