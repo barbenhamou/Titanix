@@ -19,23 +19,27 @@ static inline char* memtype_string(uint32_t type) {
 #define PMM_SECTION_BAD     2
 
 typedef struct _pmm_section {
-    struct _pmm_section*    prev;
-    struct _pmm_section*    next;
-    uint64_t                start;
-    uint64_t                pages;
-    uint64_t                free;
+    struct _pmm_section* prev;
+    struct _pmm_section* next;
+    uint64_t start;
+    uint64_t pages;
+    uint64_t free;
 } pmm_section_t;
 
 typedef struct _pmm_pool {
-    struct _pmm_pool*       next;
-    uint64_t                pages;
-    uint64_t                base;
+    struct _pmm_pool* next;
+    uint64_t pages;
+    uint64_t base;
 } pmm_pool_t;
 
 #define MAX_PMM_HEADER_PROPORTION   64
 // uses about 1 MiB of memory for 64 MiB of memory under maximum load
 void pmm_section_manager_reindex();
+
 pmm_section_t* pmm_new_section();
+
+void pmm_delete_section(pmm_section_t* section);
+
 void pmm_section_split(pmm_section_t* target, uint64_t split_idx);
 void pmm_section_combine_next(pmm_section_t* target);
 void pmm_section_combine_prev(pmm_section_t* target);

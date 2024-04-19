@@ -4,10 +4,10 @@ extern bool_t pfa_allowing_allocations;
 
 bool_t pfa_allowing_allocations = FALSE;
 
-extern uint64_t free_memory;
+extern uint64_t free_memory = 0;
 
 extern pmm_section_t* pmm_sections = NULL;
-pmm_pool_t* pmm_pools = NULL;
+extern pmm_pool_t* pmm_pools = NULL;
 uint64_t _pmm_section_head;
 uint64_t pmm_data_size;
 
