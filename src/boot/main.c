@@ -13,10 +13,15 @@ int main()
     pmm_dump();
 
     byte_t* out = (byte_t*)pmm_alloc_page();
+    byte_t* out2 = (byte_t*)pmm_alloc_page();
 
-    //memset((void*)out, 0, PAGE_SIZE);
+
+    memset((void*)out, 0, PAGE_SIZE);
+    memset((void*)out2, 1, PAGE_SIZE);
 
     pmm_free_page((void*)out);
+    pmm_free_page((void*)out2);
+
     idt_init();
     keyboard_init();
     return 0;
