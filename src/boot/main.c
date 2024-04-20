@@ -12,15 +12,8 @@ int main()
     pmm_start(list);
     pmm_dump();
 
-    byte_t* out = (byte_t*)pmm_alloc_page();
-    byte_t* out2 = (byte_t*)pmm_alloc_page();
-
-
-    memset((void*)out, 0, PAGE_SIZE);
-    memset((void*)out2, 1, PAGE_SIZE);
-
-    pmm_free_page((void*)out);
-    pmm_free_page((void*)out2);
+    byte_t* page_for_saving_pmm_sections = (byte_t*)pmm_alloc_page(); //for them not to begin in 0x10000 bc pmm_sections is there
+    
 
     idt_init();
     keyboard_init();
