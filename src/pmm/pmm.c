@@ -203,7 +203,7 @@ void pmm_start(entries_list_t* list) {
     pfa_allowing_allocations = TRUE;
     
     // Lock the pmm data pages
-    //remove this - pmm_lock_pages(pmm_sections, (pmm_data_size / PAGING_PAGE_SIZE) + ((pmm_data_size % PAGING_PAGE_SIZE != 0) ? 1 : 0));
+    //pmm_lock_pages(pmm_sections, (pmm_data_size / PAGE_SIZE) + ((pmm_data_size % PAGE_SIZE != 0) ? 1 : 0));
 }
 
 static char* __memstate_string(uint64_t state) {

@@ -12,6 +12,11 @@ int main()
     pmm_start(list);
     pmm_dump();
 
+    byte_t* out = (byte_t*)pmm_alloc_page();
+
+    //memset((void*)out, 0, PAGE_SIZE);
+
+    pmm_free_page((void*)out);
     idt_init();
     keyboard_init();
     return 0;

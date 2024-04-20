@@ -3,7 +3,7 @@
 extern bool_t pfa_allowing_allocations;
 extern uint64_t free_memory;
 extern pmm_section_t* pmm_sections;
-extern pmm_pool_t* pmm_pools;
+
 
 void pmm_section_split(pmm_section_t* target, uint64_t split_idx) {
     if (split_idx >= (target->start + target->pages * PAGE_SIZE)) {
@@ -90,6 +90,7 @@ void pmm_free_page(void* page) {
 
     pmm_section_t* selected;
     for (selected = pmm_sections; selected != NULL; selected = selected->next) {
+        
         if (selected->start == (uint64_t)page) {
             if (selected->free == PMM_SECTION_FREE) return;
             if (selected->pages == 1) {
@@ -97,18 +98,22 @@ void pmm_free_page(void* page) {
                     pmm_section_t* prev = selected->prev;
                     pmm_section_combine_next(selected);
                     pmm_section_combine_prev(prev);
+                    DEBUG("FREE1");
                     return;
 
                 } else if (selected->prev->free == PMM_SECTION_FREE) {
                     pmm_section_combine_prev(selected);
+                    DEBUG("FREE2");
                     return;
 
                 } else if (selected->next->free == PMM_SECTION_FREE) {
                     pmm_section_combine_next(selected);
+                    DEBUG("FREE3");
                     return;
 
                 } else {
                     selected->free = PMM_SECTION_FREE;
+                    DEBUG("FREE4");
                     return;
                 }
             } else {
@@ -116,10 +121,12 @@ void pmm_free_page(void* page) {
                     selected->prev->pages += 1;
                     selected->start += PAGE_SIZE;
                     selected->pages -= 1;
+                    DEBUG("FREE5");
                     return;
 
                 } else {
                     pmm_section_split(selected, selected->start + PAGE_SIZE);
+                    DEBUG("FREE6");
                     return;
                 }
             }
@@ -142,6 +149,8 @@ void pmm_free_page(void* page) {
         }
     }
     free_memory += PAGE_SIZE;
+
+    DEBUG("FREE");
 }
 
 void pmm_lock_page(void* page) {
@@ -226,44 +235,3 @@ void pmm_unlock_pages(void* page, uint64_t count) {
     }
 }
 
-void* pmm_alloc_pool(uint64_t pages_count) {
-    return NULL;
-}
-
-void pmm_free_pool(void* pool) {
-    if (!pfa_allowing_allocations || pmm_pools == NULL || pool == NULL) return;
-
-    for (pmm_pool_t* current; current != NULL; current = current->next) {
-        if (current->base <= (uint64_t)pool && (current->base + (current->pages * PAGE_SIZE)) >= (uint64_t)pool) {
-            pmm_unlock_pages((void*)current->base, current->pages);
-            return;
-        }
-    }
-
-    pmm_recombine();
-}
-
-void* pmm_realloc_pool(void* pool, uint64_t pages_count) {
-    if (!pfa_allowing_allocations || pmm_pools == NULL || pool == NULL) return;
-
-    for (pmm_pool_t* current; current != NULL; current = current->next) {
-        if (current->base = (uint64_t)pool) {
-            pmm_section_t* selected;
-            for (selected = pmm_sections; selected != NULL; selected = selected->next) {
-                if (selected->pages >= pages_count && selected->free == PMM_SECTION_FREE) {
-                    uint64_t selected_base = selected->start, selected_pages = selected->pages;
-                    pmm_lock_pages((void*)selected_base, pages_count);
-                    memcpy((void*)selected_base, (void*)current->base, current->pages * PAGE_SIZE);
-                    memset((void*)current->base, 0, current->pages * PAGE_SIZE);
-                    pmm_unlock_pages((void*)current->base, current->pages);
-                    current->base = selected_base;
-                    current->pages = selected_pages;
-                    return (void*)selected_base;
-                }
-            }
-        }
-    }
-
-    pmm_recombine();
-    return pool;
-}
