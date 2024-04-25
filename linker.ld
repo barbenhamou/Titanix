@@ -1,7 +1,9 @@
 ENTRY(start)
 
 SECTIONS {
-    . = 1M;
+    . = 0xffffffff80000000 + 2M;
+
+    load_base = .;
 
     .boot :
     {
@@ -28,4 +30,6 @@ SECTIONS {
     {
         *(.data)
     }
+
+    load_max = .;
 }
