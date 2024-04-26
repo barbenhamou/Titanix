@@ -60,7 +60,8 @@ void* paging_descriptor_get_address(page_descriptor_t* descriptor) {
 static __attribute__((always_inline))
 inline
 bool_t paging_descriptor_get_flag(page_descriptor_t* descriptor, uint64_t flag) {
-    return *descriptor & flag;
+    bool_t bool = (*descriptor) & flag;
+    return bool;
 }
 
 static __attribute__((always_inline))

@@ -120,7 +120,6 @@ static uint64_t estimated_total_memory;
 
 // extern memory_map_t* memory_map;
 void pmm_start(entries_list_t* list) {
-    INFO("%x\n", list);
     entries_list_t* memory_map = list;
     if (pfa_allowing_allocations) return;
 
@@ -174,7 +173,6 @@ void pmm_start(entries_list_t* list) {
         else {
             // Create a new pmm section based on the memory map entry information
             current->next = pmm_new_section();
-            DEBUG("%x\n", current->next);
             current->next->prev = (struct _pmm_section*)current;
             current->next->next = NULL;
             current->next->start = entry.base;

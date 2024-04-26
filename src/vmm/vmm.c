@@ -10,7 +10,6 @@ void* paging_map_page(void* virtual, void* physical, uint16_t flags) {
     paging_set_indexer(&indexer, virtual);
     page_descriptor_t pde;
     pde = pml4->entries[indexer.pml4];
-
     page_table_t* pdp;
     if (!paging_descriptor_get_flag(&pde, flags)) {
         pdp = (page_table_t*)pmm_alloc_page();
@@ -25,7 +24,7 @@ void* paging_map_page(void* virtual, void* physical, uint16_t flags) {
         pml4->entries[indexer.pml4] |= flags; 
     }
     pde = pdp->entries[indexer.pml3];
-
+    
     page_table_t* pd;
     if (!paging_descriptor_get_flag(&pde, flags)) {
         pd = (page_table_t*)pmm_alloc_page();
@@ -64,6 +63,7 @@ void* paging_map_page(void* virtual, void* physical, uint16_t flags) {
 }
 
 void* paging_walk_page(void* virtual) {
+
     paging_indexer_t indexer;
     paging_set_indexer(&indexer, virtual);
     page_descriptor_t pde;
@@ -74,6 +74,7 @@ void* paging_walk_page(void* virtual) {
     if (!paging_descriptor_get_flag(&pde, PAGING_PRESENT)) {
         return NULL;
     }
+    
 
     pdp = (page_table_t *)((uint64_t)paging_descriptor_get_address(&pde));
     
@@ -96,7 +97,9 @@ void* paging_walk_page(void* virtual) {
     pt = (page_table_t *)((uint64_t)paging_descriptor_get_address(&pde));
 
     pde = pt->entries[indexer.pml1];
-    return paging_descriptor_get_address(&pde);
+
+    void* addr_to =  paging_descriptor_get_address(&pde);
+    return addr_to;
 }
 
 void paging_unmap_page(void* virtual) {

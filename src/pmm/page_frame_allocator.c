@@ -98,22 +98,18 @@ void pmm_free_page(void* page) {
                     pmm_section_t* prev = selected->prev;
                     pmm_section_combine_next(selected);
                     pmm_section_combine_prev(prev);
-                    DEBUG("FREE1");
                     return;
 
                 } else if (selected->prev->free == PMM_SECTION_FREE) {
                     pmm_section_combine_prev(selected);
-                    DEBUG("FREE2");
                     return;
 
                 } else if (selected->next->free == PMM_SECTION_FREE) {
                     pmm_section_combine_next(selected);
-                    DEBUG("FREE3");
                     return;
 
                 } else {
                     selected->free = PMM_SECTION_FREE;
-                    DEBUG("FREE4");
                     return;
                 }
             } else {
@@ -121,12 +117,10 @@ void pmm_free_page(void* page) {
                     selected->prev->pages += 1;
                     selected->start += PAGE_SIZE;
                     selected->pages -= 1;
-                    DEBUG("FREE5");
                     return;
 
                 } else {
                     pmm_section_split(selected, selected->start + PAGE_SIZE);
-                    DEBUG("FREE6");
                     return;
                 }
             }
@@ -149,8 +143,6 @@ void pmm_free_page(void* page) {
         }
     }
     free_memory += PAGE_SIZE;
-
-    DEBUG("FREE");
 }
 
 void pmm_lock_page(void* page) {

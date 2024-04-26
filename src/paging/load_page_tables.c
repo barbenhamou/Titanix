@@ -1,7 +1,9 @@
 #include "../../include/lib/paging.h"
 
+extern page_table_t* pml4;
+
 page_table_t* paging_load_kernel_map(entries_list_t* list) {
-    page_table_t* pml4 =  (page_table_t*)pmm_alloc_page();
+    pml4 =  (page_table_t*)pmm_alloc_page();
     
     entries_list_t* selected = list;
 
@@ -19,11 +21,26 @@ page_table_t* paging_load_kernel_map(entries_list_t* list) {
     }
 
     uint64_t kernel_physical_addr =  (uint64_t)get_kernel_physical();
-
+    
     for (uint64_t i = 0; i < (uint64_t)&load_max - (kernel_physical_addr + get_kernel_virtual_offset()); i += PAGE_SIZE) {
         paging_map_page((void *)(kernel_physical_addr + get_kernel_virtual_offset() + i), (void *)(kernel_physical_addr + i), KERNEL_PAGE);
     }
 
-    __asm__ __volatile__("mov %0, %%cr3" : : "a"(paging_walk_page(pml4)));
+    void* pml4__ = paging_walk_page((void *)pml4);
+
+    __asm__ __volatile__ (
+        "mov %%cr3, %0"
+        : 
+        : "r" (pml4__)
+        : "memory"
+    );
+    return pml4;
 }
 
+void* get_kernel_physical() {
+    return (void*)(0x7c00);
+}
+
+uint64_t get_kernel_virtual_offset() {
+    return 0xffffffff80000000 - (uint64_t)get_kernel_physical();
+}
