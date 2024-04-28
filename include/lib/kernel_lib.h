@@ -9,5 +9,5 @@
 #include "ps2_keyboard.h"
 #include "pmm.h"
 #include "vmm.h"
-
+#include "heap.h"
 #endif

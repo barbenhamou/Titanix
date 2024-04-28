@@ -10,7 +10,7 @@ int main()
     entries_list_t* list = make_entries_list();
     pmm_start(list);
 
-    print_list(list);
+    //print_list(list);
     byte_t* page_for_saving_pmm_sections = (byte_t*)pmm_alloc_page(); //for them not to begin in 0x10000 bc pmm_sections is there
 
     page_table_t* pml4_ = paging_load_kernel_map(list);
@@ -32,6 +32,11 @@ int main()
 
     DEBUG("%d\n", *pos1);
 
+    byte_t* out = (byte_t*)calloc(0x1000, sizeof(byte_t));
+
+    memset((void*)out, 3, 0x1000 * sizeof(byte_t));
+
+    DEBUG("%x\n", *out);
 
     init_monitor();
     init_idt();

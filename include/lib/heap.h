@@ -5,16 +5,16 @@
 
 typedef struct heap_segment_header_t {
 
-    uint64_t length
-    heap_segment_header_t* prev;
-    heap_segment_header_t* next;
+    uint64_t length;
+    struct heap_segment_header_t* prev;
+    struct heap_segment_header_t* next;
     bool_t free;
 
 } heap_segment_header_t;
 
-heap_segment_header_t* combine_with_next(heap_segment_header_t* seg);
+void combine_with_next(heap_segment_header_t* seg);
 
-heap_segment_header_t* combine_with_prev(heap_segment_header_t* seg);
+void combine_with_prev(heap_segment_header_t* seg);
 
 heap_segment_header_t* split_header(heap_segment_header_t* seg, uint64_t split_at);
 
