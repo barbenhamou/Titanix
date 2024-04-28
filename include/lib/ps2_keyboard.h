@@ -29,15 +29,24 @@
 #define NO_OPERAND 0xff
 
 static bool_t responsivity_test();
+
 static void ps2_wait();
+
 static bool_t keyboard_send_command(uint8_t command, uint8_t operand);
+
 static bool_t is_valid_keyboard();
+
 void keyboard_handler(isr_frame_t* frame);
+
 void set_mask(bool_t mask);
+
 static void keyboard_sync_leds();
+
 static void keyboard_reset_state();
+
 static char_t analayze_ascii(uint64_t scancode);
-void keyboard_init();
+
+void init_keyboard();
 
 enum CODES {
 	A = 0x1c,

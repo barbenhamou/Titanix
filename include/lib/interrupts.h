@@ -89,7 +89,7 @@ void analyze_software_interrupt(isr_frame_t* frame);
 
 void idt_set_discriptor(uint8_t vector, uint64_t isr, uint8_t flags, uint8_t ist);
 
-void idt_init();
+void init_idt();
 
 void idt_install_irq(uint8_t vector, void *handler);
 

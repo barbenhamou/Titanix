@@ -34,7 +34,7 @@ typedef struct {
 static __attribute__((always_inline)) 
 inline
 void paging_descriptor_set_address(page_descriptor_t* desc, uint64_t addr) {
-    *desc |= addr & 0xfffffffffffff000;
+    *desc = addr & 0xfffffffffffff000;
 }
 
 static __attribute__((always_inline)) 
@@ -86,12 +86,18 @@ void paging_invlpg(void* page) {
     __asm__ __volatile__ ("invlpg (%0)" : : "r"(page) : "memory");
 }
 
-void*   paging_map_page(void* virt, void* phys, uint16_t flags);
-void    paging_unmap_page(void* virt);
-void*   paging_remap_page(void* old_virt, void* new_virt);
-void*   paging_walk_page(void* virt);
-void*   paging_edit_page(void* virt, uint16_t flags);
-void    paging_load_pml4(page_table_t* pml4);
-void*   paging_get_pml4();
+void* paging_map_page(void* virt, void* phys, uint16_t flags);
+
+void paging_unmap_page(void* virt);
+
+void* paging_remap_page(void* old_virt, void* new_virt);
+
+void* paging_walk_page(void* virt);
+
+void* paging_edit_page(void* virt, uint16_t flags);
+
+void paging_load_pml4(page_table_t* pml4);
+
+void* paging_get_pml4();
 
 #endif

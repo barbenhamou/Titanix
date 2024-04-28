@@ -11,6 +11,7 @@ void* paging_map_page(void* virtual, void* physical, uint16_t flags) {
     page_descriptor_t pde;
     pde = pml4->entries[indexer.pml4];
     page_table_t* pdp;
+    
     if (!paging_descriptor_get_flag(&pde, flags)) {
         pdp = (page_table_t*)pmm_alloc_page();
         memset((void*)pdp, 0, PAGE_SIZE);

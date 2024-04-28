@@ -495,7 +495,7 @@ void ps2_keyboard_set_scancodes(uint8_t scancode_set) {
     }
 } 
 
-void keyboard_init() {
+void init_keyboard() {
     if (keyboard_vector != 0x00) return;
 
     keyboard_vector = 3;

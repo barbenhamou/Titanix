@@ -20,7 +20,7 @@ void idt_set_discriptor(uint8_t vector, uint64_t isr, uint8_t flags, uint8_t ist
     descriptor->reserved = 0;
 }
 
-void idt_init() {
+void init_idt() {
     idtr.base = (uint64_t)&idt[0];
     idtr.limit = (uint16_t)sizeof(idt_gate_t) * IDT_MAX_DISCRIPTORS - 1;
 

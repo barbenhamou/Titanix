@@ -19,8 +19,11 @@
 #define BIG_PAGE_SIZE 0x200000
 
 extern byte_t* real_mode_start(void);
+
 extern byte_t* real_mode_end(void);
+
 extern void transfer_to_real(void(*)());
+
 extern void load_mmap(void (*)());
 
 typedef struct mmap_entry_t {
