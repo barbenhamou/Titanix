@@ -143,7 +143,7 @@ void* malloc(uint64_t length) {
     }
 
     if (length == 0) {
-        return 0;
+        return NULL;
     }
 
     heap_segment_header_t* selected = (heap_segment_header_t*)heap_start;

@@ -6,8 +6,40 @@ extern pmm_section_t* pmm_sections;
 
 
 void* pmm_alloc_pool(uint64_t pages_count) {
-    return NULL;
-}
+    if (!pfa_allowing_allocations) return NULL;
+        
+        pmm_pool_t* selected;
+
+        if (pmm_pools == NULL) {
+            pmm_pools = (pmm_pool_t*)malloc(sizeof(pmm_pool_t));
+            memset(pmm_pools, 0, PAGING_PAGE_SIZE);
+            pmm_pools = &pmm_pools[0];
+            pmm_pools->next = NULL;
+            selected = pmm_pools;
+        }
+        else {
+            for (selected = pmm_pools; selected->next != NULL; selected = selected->next);
+            selected->next = (pmm_pool_t*)malloc(sizeof(pmm_pool_t)); // find last pool
+            selected = selected->next;
+            selected->next = NULL;
+        }
+
+        selected->pages = page_count;
+        
+        pmm_section_t* section;
+        for (section = pmm_sections; section != NULL; section = section->next) {
+            if (section->pages >= page_count && section->free == PMM_SECTION_FREE) {
+                selected->base = section->start;
+                pmm_lock_pages((void *)selected->base, selected->pages);
+                return (void *)selected->base;
+            }
+        }
+
+        selected = NULL;
+
+        pmm_recombine();
+        return NULL;
+    }
 
 
 void pmm_free_pool(void* pool) {
