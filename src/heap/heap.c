@@ -7,11 +7,11 @@ bool_t heap_initialized = FALSE;
 
 void combine_with_next(heap_segment_header_t* seg) {
     if (seg->next == NULL) {
-        return NULL;
+        return;
     }
 
     if (!seg->next->free) {
-        return NULL;
+        return;
     }
 
     if (seg->next == last) {
@@ -46,7 +46,7 @@ heap_segment_header_t* split_header(heap_segment_header_t* seg, uint64_t split_a
 
     heap_segment_header_t* new_header = (heap_segment_header_t*)((uint64_t)seg + split_at + sizeof(heap_segment_header_t));
 
-    if (new_header->next != NULL) {
+    if (seg->next != NULL) {
         seg->next->prev = new_header;
     }
 
